@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="slick-util">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/libraries/slick-util" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/libraries/slick-util" />
+    </SOURCES>
+    <jarDirectory url="file://$PROJECT_DIR$/libraries/slick-util" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/libraries/slick-util" recursive="false" type="SOURCES" />
+  </library>
+</component>
