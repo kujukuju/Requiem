@@ -10,6 +10,8 @@
     <orderEntry type="library" name="lwjgl" level="project" />
     <orderEntry type="library" name="jbullet" level="project" />
     <orderEntry type="library" name="gson" level="project" />
-    <orderEntry type="library" name="lwjgl-natives-win" level="project" />
+    <orderEntry type="library" name="windows" level="project" />
+    <orderEntry type="library" name="macosx" level="project" />
+    <orderEntry type="library" name="linux" level="project" />
   </component>
 </module>
