@@ -1,26 +1,17 @@
 package com.requiem.abstractentities.entities;
 
 
-import com.bulletphysics.collision.shapes.IndexedMesh;
-import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
 import com.bulletphysics.extras.gimpact.GImpactMeshShape;
 import com.requiem.utilities.PhysicsUtils;
 import com.requiem.utilities.renderutilities.Batch;
 import com.trentwdavies.daeloader.ColladaLoader;
-import com.trentwdavies.daeloader.Face;
-import com.trentwdavies.daeloader.Geometry;
 import com.trentwdavies.daeloader.Model;
-import com.trentwdavies.daeloader.physics.PhysicsFace;
-import com.trentwdavies.daeloader.physics.PhysicsGeometry;
-import com.trentwdavies.daeloader.physics.PhysicsModel;
 import org.xml.sax.SAXException;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.nio.*;
-import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -51,46 +42,8 @@ public class Player extends Entity {
             e.printStackTrace();
         }
 
-        loadGuyShapeWithVertexAndIndexDataAndAssignToCollisionShapeDataMemberFromEntityClass();
+        collisionShape = new GImpactMeshShape(PhysicsUtils.makeTIVA(playerModel));
         init = true;
-    }
-
-    private void loadGuyShapeWithVertexAndIndexDataAndAssignToCollisionShapeDataMemberFromEntityClass() {
-        PhysicsModel playerPhysicsModel = PhysicsUtils.getPhysicsModel(playerModel);
-
-        PhysicsGeometry geo = playerPhysicsModel.physicsGeometry;
-        IndexedMesh im = new IndexedMesh();
-
-        ByteBuffer vertBuf = ByteBuffer.allocateDirect(geo.vertexList.size() * 3 * 8).order(ByteOrder.nativeOrder());
-        DoubleBuffer db = vertBuf.asDoubleBuffer();
-
-        im.numVertices = geo.vertexList.size();
-        for(Point3d pt : geo.vertexList) {
-            db.put(pt.x);
-            db.put(pt.y);
-            db.put(pt.z);
-        }
-        im.vertexBase = vertBuf;
-
-
-        List<PhysicsFace> faces = geo.physicsGeometryObject.faceList;
-        ByteBuffer indexBuf = ByteBuffer.allocateDirect(faces.size() * 3 * 4).order(ByteOrder.nativeOrder());
-        IntBuffer ib = indexBuf.asIntBuffer();
-
-        im.numTriangles = faces.size();
-        for(PhysicsFace face : faces) {
-            ib.put(face.vertexIndexPointer.get(0));
-            ib.put(face.vertexIndexPointer.get(1));
-            ib.put(face.vertexIndexPointer.get(2));
-        }
-        im.triangleIndexBase = indexBuf;
-
-        im.vertexStride = 24;
-        im.triangleIndexStride = 12;
-
-        TriangleIndexVertexArray tiva = new TriangleIndexVertexArray();
-        tiva.addIndexedMesh(im);
-        collisionShape = new GImpactMeshShape(tiva);
     }
 
     @Override

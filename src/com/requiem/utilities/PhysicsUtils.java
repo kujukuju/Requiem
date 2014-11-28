@@ -1,5 +1,8 @@
 package com.requiem.utilities;
 
+import com.bulletphysics.collision.shapes.IndexedMesh;
+import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
+import com.bulletphysics.extras.gimpact.GImpactMeshShape;
 import com.trentwdavies.daeloader.Face;
 import com.trentwdavies.daeloader.Geometry;
 import com.trentwdavies.daeloader.GeometryObject;
@@ -10,6 +13,10 @@ import com.trentwdavies.daeloader.physics.PhysicsGeometryObject;
 import com.trentwdavies.daeloader.physics.PhysicsModel;
 
 import javax.vecmath.Point3d;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.DoubleBuffer;
+import java.nio.IntBuffer;
 import java.util.List;
 
 /**
@@ -54,4 +61,44 @@ public class PhysicsUtils {
 
         return physicsModel;
     }
+
+
+    public static TriangleIndexVertexArray makeTIVA(Model model) {
+        PhysicsModel playerPhysicsModel = PhysicsUtils.getPhysicsModel(model);
+
+        PhysicsGeometry geo = playerPhysicsModel.physicsGeometry;
+        IndexedMesh im = new IndexedMesh();
+
+        ByteBuffer vertBuf = ByteBuffer.allocateDirect(geo.vertexList.size() * 3 * 8).order(ByteOrder.nativeOrder());
+        DoubleBuffer db = vertBuf.asDoubleBuffer();
+
+        im.numVertices = geo.vertexList.size();
+        for(Point3d pt : geo.vertexList) {
+            db.put(pt.x);
+            db.put(pt.y);
+            db.put(pt.z);
+        }
+        im.vertexBase = vertBuf;
+
+
+        List<PhysicsFace> faces = geo.physicsGeometryObject.faceList;
+        ByteBuffer indexBuf = ByteBuffer.allocateDirect(faces.size() * 3 * 4).order(ByteOrder.nativeOrder());
+        IntBuffer ib = indexBuf.asIntBuffer();
+
+        im.numTriangles = faces.size();
+        for(PhysicsFace face : faces) {
+            ib.put(face.vertexIndexPointer.get(0));
+            ib.put(face.vertexIndexPointer.get(1));
+            ib.put(face.vertexIndexPointer.get(2));
+        }
+        im.triangleIndexBase = indexBuf;
+
+        im.vertexStride = 24;
+        im.triangleIndexStride = 12;
+
+        TriangleIndexVertexArray tiva = new TriangleIndexVertexArray();
+        tiva.addIndexedMesh(im);
+        return tiva;
+    }
+
 }
