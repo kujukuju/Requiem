@@ -7,10 +7,12 @@ import com.requiem.listeners.GameInput;
 import com.requiem.managers.PlayerManager;
 import com.requiem.managers.SettingsManager;
 import com.requiem.utilities.GameTime;
+import com.requiem.utilities.PhysicsUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import javax.vecmath.Vector3d;
+import javax.vecmath.Vector3f;
 
 /**
  * Created by Trent on 10/27/2014.
@@ -25,7 +27,18 @@ public class Physics {
 
     public static DynamicsWorld dynamicsWorld;
 
+    private static boolean init;
+
+    public static void init() {
+        dynamicsWorld = PhysicsUtils.createDynamicsWorld();
+        dynamicsWorld.setGravity(new Vector3f(0, -0.1f, 0));
+        //add rigid bodies
+    }
+
     public static void update() {
+        if (!init) {
+            init();
+        }
         playerAngles();
         playerMovements();
 

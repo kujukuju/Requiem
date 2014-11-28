@@ -1,7 +1,15 @@
 package com.requiem.utilities;
 
+import com.bulletphysics.collision.broadphase.AxisSweep3;
+import com.bulletphysics.collision.broadphase.BroadphaseInterface;
+import com.bulletphysics.collision.dispatch.CollisionDispatcher;
+import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
 import com.bulletphysics.collision.shapes.IndexedMesh;
 import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
+import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
+import com.bulletphysics.dynamics.DynamicsWorld;
+import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
+import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.extras.gimpact.GImpactMeshShape;
 import com.trentwdavies.daeloader.Face;
 import com.trentwdavies.daeloader.Geometry;
@@ -13,6 +21,7 @@ import com.trentwdavies.daeloader.physics.PhysicsGeometryObject;
 import com.trentwdavies.daeloader.physics.PhysicsModel;
 
 import javax.vecmath.Point3d;
+import javax.vecmath.Vector3f;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
@@ -101,4 +110,25 @@ public class PhysicsUtils {
         return tiva;
     }
 
+
+    public static DynamicsWorld createDynamicsWorld() {
+        DefaultCollisionConfiguration collisionConfiguration = new DefaultCollisionConfiguration();
+        CollisionDispatcher dispatcher = new CollisionDispatcher(collisionConfiguration);
+
+        // the maximum size of the collision world. Make sure objects stay
+        // within these boundaries. Don't make the world AABB size too large, it
+        // will harm simulation quality and performance
+        Vector3f worldAabbMin = new Vector3f(-1000, -1000, -1000);
+        Vector3f worldAabbMax = new Vector3f( 1000,  1000,  1000);
+        // maximum number of objects
+        final int maxProxies = 1024;
+        // Broadphase computes an conservative approximate list of colliding pairs
+        BroadphaseInterface broadphase = new AxisSweep3(worldAabbMin, worldAabbMax, maxProxies);
+
+        // constraint (joint) solver
+        ConstraintSolver solver = new SequentialImpulseConstraintSolver();
+
+        // provides discrete rigid body simulation
+        return new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+    }
 }

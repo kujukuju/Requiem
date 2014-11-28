@@ -2,6 +2,7 @@ package com.requiem.abstractentities.entities;
 
 import com.bulletphysics.collision.shapes.BvhTriangleMeshShape;
 import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
+import com.requiem.utilities.PhysicsUtils;
 import com.requiem.utilities.renderutilities.Batch;
 import com.requiem.utilities.AssetManager;
 import com.trentwdavies.daeloader.Model;
@@ -27,9 +28,7 @@ public class Level extends Entity {
     public void init() {
         levelModel = (Model) AssetManager.getAsset(levelPath);
 
-        //int numTriangles = levelModel.
-        //TriangleIndexVertexArray triangleIndexVertexArray = new TriangleIndexVertexArray();
-        //collisionShape = new BvhTriangleMeshShape(, true);
+        collisionShape = new BvhTriangleMeshShape(PhysicsUtils.makeTIVA(levelModel), true);
         init = true;
     }
 
