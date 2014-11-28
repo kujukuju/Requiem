@@ -16,7 +16,6 @@ public class Geometry {
     public List<GeometryObject> geometryObjectList;
 
     public Geometry() {
-        this.id = id;
         vertexList = new ArrayList<Point3d>();
         normalList = new ArrayList<Vector3d>();
         colorList = new ArrayList<Point3d>();
