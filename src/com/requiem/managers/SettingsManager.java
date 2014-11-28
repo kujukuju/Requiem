@@ -15,8 +15,16 @@ import java.lang.reflect.Type;
 public class SettingsManager {
     private static Settings settings;
 
-    private static final String SETTINGS_FILE_PATH = "config/settings.json";
+    private static final String SETTINGS_FILE_PATH = "assets/config/settings.json";
     private static final double MAX_ASPECT_RATIO = 1920.0 / 1080;
+
+    public static double[] getMouseSensitivity() {
+        return settings.getMouseSensitivity();
+    }
+
+    public static void setMouseSensitivity(double[] mouseSensitivity) {
+        settings.setMouseSensitivity(mouseSensitivity);
+    }
 
     public static int[] getResolution() {
         return settings.getResolution();
@@ -61,38 +69,41 @@ public class SettingsManager {
     }
 
     private static void checkFields() {
-        if (settings.getResolution() == null || settings.getMonitorResolution() == null) {
+        if (settings.getMonitorResolution() == null) {
             setDefaultMonitorResolution();
-            setDefaultResolution();
-            writeSettings();
         }
-    }
+        if (settings.getResolution() == null) {
+            setDefaultResolution();
+        }
+        if (settings.getMouseSensitivity() == null) {
+            setDefaultMouseSensitivity();
+        }
 
-    private static boolean monitorResolutionMatch() {
-        Dimension monitorResolutionDimension = Globals.TOOLKIT.getScreenSize();
-        int[] oldMonitorResolution = getMonitorResolution();
-
-        return monitorResolutionDimension.getWidth() == oldMonitorResolution[0]
-                && monitorResolutionDimension.getHeight() == oldMonitorResolution[1];
+        writeSettings();
     }
 
     public static void writeSettings() {
-        /*String jsonString = Globals.GSON.toJson(settings);
+        String jsonString = Globals.GSON.toJson(settings);
         File settingsFile = new File(SETTINGS_FILE_PATH);
         try {
             FileWriter fw = new FileWriter(settingsFile);
             BufferedWriter br = new BufferedWriter(fw);
             br.write(jsonString);
+            br.flush();
+            fw.flush();
+            br.close();
+            fw.close();
         } catch (IOException e) {
             System.err.println("Warning! Was unable to write to the settings file.");
             e.printStackTrace();
-        }*/
+        }
     }
 
     public static void setDefaults() {
         settings = new Settings();
         setDefaultMonitorResolution();
         setDefaultResolution();
+        setDefaultMouseSensitivity();
     }
 
     private static void setDefaultMonitorResolution() {
@@ -114,5 +125,10 @@ public class SettingsManager {
 
         int[] resolution = {resolutionWidth, resolutionHeight};
         setResolution(resolution);
+    }
+
+    private static void setDefaultMouseSensitivity() {
+        double[] mouseSensitivity = {0.25, 0.5};
+        setMouseSensitivity(mouseSensitivity);
     }
 }

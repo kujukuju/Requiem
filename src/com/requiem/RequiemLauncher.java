@@ -10,8 +10,10 @@ import org.lwjgl.opengl.DisplayMode;
 public class RequiemLauncher {
     public static Requiem requiem;
     public static void main(String[] args) {
+        int width = (int) (1920 * 1);
+        int height = (int) (1080 * 1);
         try {
-            Display.setDisplayMode(new DisplayMode(1920, 1080));
+            Display.setDisplayMode(new DisplayMode(width, height));
             Display.create();
         } catch (LWJGLException e) {
             e.printStackTrace();

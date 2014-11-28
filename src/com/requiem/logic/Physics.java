@@ -2,10 +2,12 @@ package com.requiem.logic;
 
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.requiem.Requiem;
-import com.requiem.abstractentities.entities.MainPlayer;
-import com.requiem.listeners.GameInputProcessor;
+import com.requiem.abstractentities.entities.Player;
+import com.requiem.listeners.GameInput;
 import com.requiem.managers.PlayerManager;
+import com.requiem.managers.SettingsManager;
 import com.requiem.utilities.GameTime;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import javax.vecmath.Vector3d;
@@ -14,72 +16,105 @@ import javax.vecmath.Vector3d;
  * Created by Trent on 10/27/2014.
  */
 public class Physics {
-    public static final double GRAVITY = 0.8;
-    public static final double MAX_SPEED = 4;
+    public static final double GRAVITY = 0.008;
+    public static final double MAX_SPEED = .05;
+    public static final double ACCEL = 0.004;
+    public static final double FRICTION = 0.002;
+
+    public static final double TOLERANCE = 0.00001;
 
     public static DynamicsWorld dynamicsWorld;
 
     public static void update() {
-        double timeScale = GameTime.getInstantDeltaTime();
-
-        MainPlayer MAIN_PLAYER = PlayerManager.MAIN_PLAYER;
-        Vector3d guyAngle = MAIN_PLAYER.ang;
-        double yaw = Math.toRadians(guyAngle.y);
-        double originalSpeedSquared = PhysicsCalc.getLengthSquared(MAIN_PLAYER.vel);
-
-        //TODO its not actually adding or something
-        /*if (GameInputProcessor.keysDown[Input.Keys.W]) {
-            MAIN_PLAYER.vel.add(new Vector3d((float) Math.cos(yaw), 0, (float) Math.sin(yaw)));
-        }
-        if (GameInputProcessor.keysDown[Input.Keys.S]) {
-            MAIN_PLAYER.vel.add(new Vector3d(-Math.cos(yaw), 0, -Math.sin(yaw)));
-        }
-
-        if (GameInputProcessor.keysDown[Input.Keys.D]) {
-            MAIN_PLAYER.vel.add(new Vector3d(Math.cos(yaw + Math.PI / 2), 0, Math.sin(yaw + Math.PI / 2)));
-        }
-        if (GameInputProcessor.keysDown[Input.Keys.A]) {
-            MAIN_PLAYER.vel.add(new Vector3d(-Math.cos(yaw + Math.PI / 2), 0, -Math.sin(yaw + Math.PI / 2)));
-        }*/
-
-        MAIN_PLAYER.ang.y += Mouse.getDX();
-        MAIN_PLAYER.ang.x -= Mouse.getDY();
-
-        //TODO this is all gonna be wrong when you can move in 3 dimensions
-        double newSpeedSquared = PhysicsCalc.getLengthSquared(MAIN_PLAYER.vel);
-        if (originalSpeedSquared <= MAX_SPEED * MAX_SPEED && newSpeedSquared > MAX_SPEED * MAX_SPEED) {
-            System.out.println("WHAT");
-            System.out.println(MAIN_PLAYER.vel);
-            MAIN_PLAYER.vel.normalize();
-            System.out.println(MAIN_PLAYER.vel);
-            MAIN_PLAYER.vel.x *= MAX_SPEED;
-            MAIN_PLAYER.vel.y *= MAX_SPEED;
-            MAIN_PLAYER.vel.z *= MAX_SPEED;
-        }
-
-        MAIN_PLAYER.vel.x *= timeScale;
-        MAIN_PLAYER.vel.y *= timeScale;
-        MAIN_PLAYER.vel.z *= timeScale;
-
-        MAIN_PLAYER.pos.add(MAIN_PLAYER.vel);
-
-        MAIN_PLAYER.update();
+        playerAngles();
+        playerMovements();
 
         setCameraPosition();
     }
 
+    private static void playerAngles() {
+        double[] mouseSensitivity = SettingsManager.getMouseSensitivity();
+        Player player = PlayerManager.PLAYER;
+
+        player.ang.y += Mouse.getDX() * mouseSensitivity[0];
+        player.ang.x -= Mouse.getDY() * mouseSensitivity[1];
+        if (player.ang.x > 89) {
+            player.ang.x = 89;
+        }
+        if (player.ang.x < -89) {
+            player.ang.x = -89;
+        }
+    }
+
+    //TODO need to do air friction if youre going faster than max speed
+    private static void playerMovements() {
+        double timeScale = GameTime.getTimeScale();
+        Player player = PlayerManager.PLAYER;
+
+        double yawRadians = Math.toRadians(player.ang.y);
+        double originalSpeedSquared = player.vel.lengthSquared();
+
+        Vector3d accelVec = new Vector3d();
+        if (GameInput.keysDown[Keyboard.KEY_W]) {
+            accelVec.add(new Vector3d(Math.sin(yawRadians), 0, -Math.cos(yawRadians)));
+        }
+        if (GameInput.keysDown[Keyboard.KEY_S]) {
+            accelVec.add(new Vector3d(-Math.sin(yawRadians), 0, Math.cos(yawRadians)));
+        }
+
+        if (GameInput.keysDown[Keyboard.KEY_D]) {
+            accelVec.add(new Vector3d(Math.sin(yawRadians + Math.PI / 2), 0, -Math.cos(yawRadians + Math.PI / 2)));
+        }
+        if (GameInput.keysDown[Keyboard.KEY_A]) {
+            accelVec.add(new Vector3d(-Math.sin(yawRadians + Math.PI / 2), 0, Math.cos(yawRadians + Math.PI / 2)));
+        }
+        if (accelVec.lengthSquared() > 0) {
+            accelVec.normalize();
+            accelVec.scale(ACCEL);
+            accelVec.scale(timeScale);
+        }
+        player.vel.add(accelVec);
+
+        if (player.vel.lengthSquared() > 0) {
+            //apply friction
+            Vector3d frictionVector = (Vector3d) player.vel.clone();
+            frictionVector.normalize();
+            frictionVector.scale(FRICTION);
+            frictionVector.scale(timeScale);
+
+            if (player.vel.lengthSquared() < frictionVector.lengthSquared()) {
+                //will go past 0 speed
+                player.vel.set(0, 0, 0);
+            } else {
+                player.vel.sub(frictionVector);
+            }
+        }
+
+        double newSpeedSquared = player.vel.lengthSquared();
+        if (originalSpeedSquared <= MAX_SPEED * MAX_SPEED + TOLERANCE && newSpeedSquared > MAX_SPEED * MAX_SPEED) {
+            //went over max speed due to wasd key acceleration
+            player.vel.normalize();
+            player.vel.scale(MAX_SPEED);
+        }
+        System.out.println(player.vel.lengthSquared() > MAX_SPEED * MAX_SPEED);
+
+        Vector3d addVel = (Vector3d) player.vel.clone();
+        addVel.scale(timeScale);
+        player.pos.add(addVel);
+    }
+
     private static void setCameraPosition() {
-        MainPlayer MAIN_PLAYER = PlayerManager.MAIN_PLAYER;
-        double pitch = Math.toRadians(MAIN_PLAYER.ang.x);
-        double yaw = Math.toRadians(MAIN_PLAYER.ang.y);
+        Player player = PlayerManager.PLAYER;
+        double pitch = Math.toRadians(player.ang.x);
+        double yaw = Math.toRadians(player.ang.y);
 
         double camDistance = 5;
         Vector3d camPos = new Vector3d();
-        camPos.x = (float) (MAIN_PLAYER.pos.x - Math.cos(yaw) * camDistance * Math.cos(pitch));
-        camPos.z = (float) (MAIN_PLAYER.pos.z - Math.sin(yaw) * camDistance * Math.cos(pitch));
-        camPos.y = (float) (MAIN_PLAYER.pos.y + Math.sin(pitch) * camDistance);
+        camPos.x = (float) (player.pos.x + Math.sin(-yaw) * camDistance * Math.cos(pitch));
+        camPos.z = (float) (player.pos.z + Math.cos(-yaw) * camDistance * Math.cos(pitch));
+        camPos.y = (float) (player.pos.y + Math.sin(pitch) * camDistance);
 
         Requiem.GAME_CAMERA.pos.set(camPos);
-        Requiem.GAME_CAMERA.lookAt(MAIN_PLAYER.pos);
+        Requiem.GAME_CAMERA.lookAt(player.pos);
     }
 }

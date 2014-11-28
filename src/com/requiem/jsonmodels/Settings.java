@@ -10,13 +10,24 @@ public class Settings {
     private int[] monitorResolution;
     @SerializedName("resolution")
     private int[] resolution;
+    @SerializedName("mouse-sensitivity")
+    private double[] mouseSensitivity;
 
     public Settings() {
     }
 
-    public Settings(int[] monitorResolution, int[] resolution) {
+    public Settings(int[] monitorResolution, int[] resolution, double[] mouseSensitivity) {
         this.monitorResolution = monitorResolution;
         this.resolution = resolution;
+        this.mouseSensitivity = mouseSensitivity;
+    }
+
+    public double[] getMouseSensitivity() {
+        return mouseSensitivity;
+    }
+
+    public void setMouseSensitivity(double[] mouseSensitivity) {
+        this.mouseSensitivity = mouseSensitivity;
     }
 
     public int[] getResolution() {

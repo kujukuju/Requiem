@@ -2,14 +2,10 @@ package com.requiem.states;
 
 import com.requiem.Requiem;
 import com.requiem.abstractentities.entities.Level;
-import com.requiem.abstractentities.entities.MainPlayer;
 import com.requiem.interfaces.State;
-import com.requiem.listeners.GameInputProcessor;
-import com.requiem.managers.FontManager;
-import com.requiem.managers.PlayerManager;
+import com.requiem.listeners.GameInput;
 import com.requiem.managers.SettingsManager;
 import com.requiem.managers.StateManager;
-import com.requiem.utilities.AssetManager;
 import com.requiem.utilities.GraphicsUtils;
 
 import javax.vecmath.Point3d;
@@ -20,7 +16,7 @@ import static org.lwjgl.opengl.GL11.*;
  * Created by Trent on 10/24/2014.
  */
 public class TitleScreenState implements State {
-    public static final String LEVEL_FILE_PATH = "assets/levels/snow-correct-large.dae";
+    public static final String LEVEL_FILE_PATH = "assets/levels/snow-correct.dae";
     public static final Point3d CAM_POS = new Point3d(2, 9, -14);
     public static Level level;
 
@@ -67,8 +63,8 @@ public class TitleScreenState implements State {
         level.update();
 
         mouseOverOptionIndex = -1;
-        double mouseX = GameInputProcessor.mouseX;
-        double mouseY = GameInputProcessor.mouseY;
+        double mouseX = GameInput.mouseX;
+        double mouseY = GameInput.mouseY;
 
         for (int i = 0; i < menuOptions.length; i++) {
             float x = xyWidthHeight[i][X];
@@ -82,7 +78,7 @@ public class TitleScreenState implements State {
             }
         }
 
-        if (GameInputProcessor.mouseDeltaUp) {
+        if (GameInput.mouseDeltaUpLeft) {
             if (mouseOverOptionIndex != -1) {
                 StateManager.clearStates();
                 int state = menuOptionStates[mouseOverOptionIndex];
@@ -95,12 +91,12 @@ public class TitleScreenState implements State {
     public void render() {
         glPushMatrix();
 
-            glRotated(-Requiem.GAME_CAMERA.ang.x, 1, 0, 0);
-            glRotated(-Requiem.GAME_CAMERA.ang.y, 0, 1, 0);
-            glRotated(-Requiem.GAME_CAMERA.ang.z, 0, 0, 1);
-            glTranslated(-Requiem.GAME_CAMERA.pos.x, -Requiem.GAME_CAMERA.pos.y, -Requiem.GAME_CAMERA.pos.z);
+        glRotated(-Requiem.GAME_CAMERA.ang.x, 1, 0, 0);
+        glRotated(-Requiem.GAME_CAMERA.ang.y, 0, 1, 0);
+        glRotated(-Requiem.GAME_CAMERA.ang.z, 0, 0, 1);
+        glTranslated(-Requiem.GAME_CAMERA.pos.x, -Requiem.GAME_CAMERA.pos.y, -Requiem.GAME_CAMERA.pos.z);
 
-            level.render();
+        level.render();
 
         glPopMatrix();
 

@@ -4,6 +4,7 @@ import com.requiem.Requiem;
 import com.requiem.abstractentities.entities.Level;
 import com.requiem.interfaces.State;
 import com.requiem.logic.Physics;
+import com.requiem.managers.PlayerManager;
 import org.lwjgl.input.Mouse;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -19,9 +20,9 @@ public class PlayableState implements State {
 
     @Override
     public void init() {
-        level = new Level(LEVEL_FILE_PATH);
-
         Mouse.setGrabbed(true);
+
+        level = new Level(LEVEL_FILE_PATH);
 
         init = true;
     }
@@ -32,6 +33,7 @@ public class PlayableState implements State {
             init();
 
         level.update();
+        PlayerManager.PLAYER.update();
         Physics.update();
     }
 
@@ -39,12 +41,13 @@ public class PlayableState implements State {
     public void render() {
         glPushMatrix();
 
-            glRotated(Math.toDegrees(Requiem.GAME_CAMERA.ang.x), 1, 0, 0);
-            glRotated(Math.toDegrees(Requiem.GAME_CAMERA.ang.y), 0, 1, 0);
-            glRotated(Math.toDegrees(Requiem.GAME_CAMERA.ang.z), 0, 0, 1);
-            glTranslated(Requiem.GAME_CAMERA.pos.x, Requiem.GAME_CAMERA.pos.y, Requiem.GAME_CAMERA.pos.z);
+        glRotated(-Requiem.GAME_CAMERA.ang.x, 1, 0, 0);
+        glRotated(-Requiem.GAME_CAMERA.ang.y, 0, 1, 0);
+        glRotated(-Requiem.GAME_CAMERA.ang.z, 0, 0, 1);
+        glTranslated(-Requiem.GAME_CAMERA.pos.x, -Requiem.GAME_CAMERA.pos.y, -Requiem.GAME_CAMERA.pos.z);
 
-            level.render();
+        level.render();
+        PlayerManager.PLAYER.render();
 
         glPopMatrix();
     }

@@ -85,6 +85,11 @@ public class AssetManager {
         return null;
     }
 
+    public static boolean containsAsset(String path) {
+        path = path.toLowerCase();
+        return filePathAssetMap.containsKey(path);
+    }
+
     public static void dispose(String path) {
         path = path.toLowerCase();
 

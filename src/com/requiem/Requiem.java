@@ -1,16 +1,17 @@
 package com.requiem;
 
 import com.requiem.abstractentities.GameCamera;
-import com.requiem.interfaces.Asset;
+import com.requiem.abstractentities.entities.Player;
 import com.requiem.interfaces.Renderable;
 import com.requiem.interfaces.State;
 import com.requiem.interfaces.Updateable;
-import com.requiem.listeners.GameInputProcessor;
+import com.requiem.listeners.GameInput;
 import com.requiem.managers.FontManager;
 import com.requiem.managers.SettingsManager;
 import com.requiem.managers.StateManager;
 import com.requiem.states.TitleScreenState;
 import com.requiem.utilities.AssetManager;
+import com.requiem.utilities.GameTime;
 import com.requiem.utilities.GraphicsUtils;
 import com.trentwdavies.daeloader.Model;
 import org.lwjgl.opengl.Display;
@@ -20,7 +21,7 @@ import static org.lwjgl.opengl.GL11.*;
 import java.util.List;
 
 public class Requiem {
-    public static final GameInputProcessor gameInputProcessor = new GameInputProcessor();
+    public static final GameInput gameInputProcessor = new GameInput();
 
     public static final GameCamera GAME_CAMERA = new GameCamera();
 
@@ -58,8 +59,9 @@ public class Requiem {
 
     public void loadStuff() {
         AssetManager.queue(TitleScreenState.LEVEL_FILE_PATH, Model.class);
+        AssetManager.queue(Player.PLAYER_MODEL_FILE_PATH, Model.class);
         AssetManager.load();
-        //AssetManager.pauseWhileLoading();
+        AssetManager.pauseWhileLoading();
         //Globals.ASSET_MANAGER.queue("levels/test_1.g3db", Model.class);
         //Globals.ASSET_MANAGER.queue("levels/titlescreen/snow_1.g3db", Model.class);
         //Globals.ASSET_MANAGER.queue("levels/tree.g3db", Model.class);
@@ -67,12 +69,11 @@ public class Requiem {
 
     public void init() {
         int[] resolution = SettingsManager.getResolution();
-        StateManager.currentStates.add(StateManager.STATE_TITLE_SCREEN);//TODO do this better without doing .add
+        StateManager.currentStates.add(StateManager.STATE_PLAYABLE);//TODO do this better without doing .add
 
         //TODO this shouldnt be in init
-
         glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_ZERO);//TODO wtf
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);//TODO wtf
 
         glShadeModel(GL_FLAT);
         glEnable(GL_DEPTH_TEST);
@@ -118,6 +119,8 @@ public class Requiem {
             return;
         }*/
 
+        updateStatics();
+
         //get the states before you update and render, because in an update call the state would change then it would render the new state before it updated
         //this would cause errors because the init() method was never ran
         List<State> currentStates = StateManager.getCurrentStates();
@@ -127,6 +130,11 @@ public class Requiem {
         for (int i = 0; i < currentStates.size(); i++) {
             ((Renderable) currentStates.get(i)).render();
         }
+    }
+
+    public void updateStatics() {
+        GameTime.update();
+        GameInput.update();
     }
 
     public void updateResolution() {
