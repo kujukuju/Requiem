@@ -4,11 +4,15 @@ package com.requiem.abstractentities.entities;
 import com.bulletphysics.collision.shapes.IndexedMesh;
 import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
 import com.bulletphysics.extras.gimpact.GImpactMeshShape;
+import com.requiem.utilities.PhysicsUtils;
 import com.requiem.utilities.renderutilities.Batch;
 import com.trentwdavies.daeloader.ColladaLoader;
 import com.trentwdavies.daeloader.Face;
 import com.trentwdavies.daeloader.Geometry;
 import com.trentwdavies.daeloader.Model;
+import com.trentwdavies.daeloader.physics.PhysicsFace;
+import com.trentwdavies.daeloader.physics.PhysicsGeometry;
+import com.trentwdavies.daeloader.physics.PhysicsModel;
 import org.xml.sax.SAXException;
 
 import javax.vecmath.Point3d;
@@ -52,12 +56,9 @@ public class Player extends Entity {
     }
 
     private void loadGuyShapeWithVertexAndIndexDataAndAssignToCollisionShapeDataMemberFromEntityClass() {
-        List<Geometry> geometries = playerModel.geometryList;
-        if(geometries.size() == 0) {
-            System.err.println("No geometries");
-            return;
-        }
-        Geometry geo = geometries.get(0);
+        PhysicsModel playerPhysicsModel = PhysicsUtils.getPhysicsModel(playerModel);
+
+        PhysicsGeometry geo = playerPhysicsModel.physicsGeometry;
         IndexedMesh im = new IndexedMesh();
 
         ByteBuffer vertBuf = ByteBuffer.allocateDirect(geo.vertexList.size() * 3 * 8).order(ByteOrder.nativeOrder());
@@ -72,12 +73,12 @@ public class Player extends Entity {
         im.vertexBase = vertBuf;
 
 
-        List<Face> faces = geo.geometryObjectList.get(0).faceList;
+        List<PhysicsFace> faces = geo.physicsGeometryObject.faceList;
         ByteBuffer indexBuf = ByteBuffer.allocateDirect(faces.size() * 3 * 4).order(ByteOrder.nativeOrder());
         IntBuffer ib = indexBuf.asIntBuffer();
 
         im.numTriangles = faces.size();
-        for(Face face : faces) {
+        for(PhysicsFace face : faces) {
             ib.put(face.vertexIndexPointer.get(0));
             ib.put(face.vertexIndexPointer.get(1));
             ib.put(face.vertexIndexPointer.get(2));
