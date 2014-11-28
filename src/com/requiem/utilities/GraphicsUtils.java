@@ -3,6 +3,8 @@ package com.requiem.utilities;
 import com.requiem.managers.SettingsManager;
 import org.lwjgl.BufferUtils;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -17,6 +19,10 @@ public class GraphicsUtils {
         returnBuffer.flip();
 
         return returnBuffer;
+    }
+
+    public static ByteBuffer flippedByteBuffer(byte... bytes) {
+        return (ByteBuffer) ByteBuffer.allocateDirect(bytes.length).order(ByteOrder.nativeOrder()).put(bytes).flip();
     }
 
     public static float[] rowMajorToColumnMajor(float[] oldMatrix) {
