@@ -3,14 +3,12 @@ package com.trentwdavies.fontloader;
 import com.requiem.utilities.GraphicsUtils;
 import com.trentwdavies.textureloader.Texture;
 
+import static org.lwjgl.opengl.GL11.*;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DataBufferByte;
-import java.io.File;
-import java.io.IOException;
-import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /**
  * Created by Trent on 11/25/2014.
@@ -23,6 +21,8 @@ public class StaticFont {
     private int charWidth;
     private int imageWidth;
     private int imageHeight;
+
+    private int[] charWidths;
 
     private int columnCount;
 
@@ -45,10 +45,31 @@ public class StaticFont {
     }
 
     public void drawString(String string, int x, int y) {
+        double[] bounds = new double[4];
+        int charHeight = getStaticFontHeight();
+        glEnable(GL_TEXTURE_2D);
+        charactersTexture.bind();
+
         for (int i = 0; i < string.length(); i++) {
             char curChar = string.charAt(i);
-            //ByteBuffer curByteBuffer = getByteBuffer(curChar);
+            getTextureBoundary(curChar, bounds);
+
+            glBegin(GL_QUADS);
+                glTexCoord2d(bounds[0], bounds[1]);
+                glVertex2d(x, y);
+
+                glTexCoord2d(bounds[2], bounds[1]);
+                glVertex2d(x + charWidths[curChar], y);
+
+                glTexCoord2d(bounds[2], bounds[3]);
+                glVertex2d(x + charWidths[curChar], y + charHeight);
+
+                glTexCoord2d(bounds[0], bounds[3]);
+                glVertex2d(x, y + charHeight);
+            glEnd();
+            x += charWidths[curChar];
         }
+        glDisable(GL_TEXTURE_2D);
     }
 
     public int getStaticFontHeight() {
@@ -56,7 +77,7 @@ public class StaticFont {
     }
 
     public void generateCharacterWidth() {
-        int[] charWidths = awtFontMetrics.getWidths();
+        charWidths = awtFontMetrics.getWidths();
         charWidth = 0;
         for (int i : charWidths) {
             charWidth = Math.max(charWidth, i);
@@ -71,15 +92,18 @@ public class StaticFont {
         return awtFontMetrics.getMaxDescent();
     }
 
-    private double[] getTextureBoundary(char curChar) {
+    private void getTextureBoundary(char curChar, double[] out) {
         int[] rowColumn = getRowColumn(curChar);
 
-        double lowerX = rowColumn[0] * charWidth;
-        double lowerY = imageHeight - rowColumn[1] * getStaticFontHeight();
-        double upperX = (rowColumn[0] + 1) * charWidth;
-        double upperY = imageHeight - (rowColumn[1] + 1) * getStaticFontHeight();
+        double lowerX = rowColumn[1] * charWidth;
+        double lowerY = rowColumn[0] * getStaticFontHeight();
+        double upperX = (rowColumn[1] + 1) * charWidth;
+        double upperY = (rowColumn[0] + 1) * getStaticFontHeight();
 
-        return new double[]{lowerX / imageWidth, lowerY / imageHeight, upperX / imageWidth, upperY / imageHeight};
+        out[0] = lowerX / imageWidth;
+        out[1] = lowerY / imageHeight;
+        out[2] = upperX / imageWidth;
+        out[3] = upperY / imageHeight;
     }
 
     private int[] getRowColumn(char curChar) {

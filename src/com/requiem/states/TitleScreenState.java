@@ -4,6 +4,7 @@ import com.requiem.Requiem;
 import com.requiem.abstractentities.entities.Level;
 import com.requiem.interfaces.State;
 import com.requiem.listeners.GameInput;
+import com.requiem.managers.FontManager;
 import com.requiem.managers.SettingsManager;
 import com.requiem.managers.StateManager;
 import com.requiem.utilities.GraphicsUtils;
@@ -103,9 +104,9 @@ public class TitleScreenState implements State {
     }
 
     public void renderOrthographic() {
-        GraphicsUtils.beingOrtho();
+        GraphicsUtils.beginOrtho();
 
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);//TODO this is dumb af
+        //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);//TODO this is dumb af
 
         for (int i = 0; i < menuOptions.length; i++) {
             float drawX = xyWidthHeight[i][X];
@@ -118,11 +119,11 @@ public class TitleScreenState implements State {
             //    textColor = new Color(255, 255, 255, 240);
             }
 
-            //FontManager.titleScreenMenuFont.drawString(drawX, drawY, menuOptions[i], textColor);
+
+            FontManager.titleScreenMenuFont.drawString(menuOptions[i], (int) drawX, (int) drawY);
         }
 
-
-        glBlendFunc(GL_ONE, GL_ZERO);
+        //glBlendFunc(GL_ONE, GL_ZERO);
         GraphicsUtils.endOrtho();
     }
 

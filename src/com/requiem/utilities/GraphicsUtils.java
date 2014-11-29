@@ -75,7 +75,7 @@ public class GraphicsUtils {
         return n;
     }
 
-    public static void beingOrtho() {
+    public static void beginOrtho() {
         int[] resolution = SettingsManager.getResolution();
         glPushMatrix(); // Duplicate top MODELVIEW matrix
         glLoadIdentity(); // Reset new top GL_MODELVIEW to identity
@@ -87,9 +87,17 @@ public class GraphicsUtils {
         glOrtho(0, resolution[0], resolution[1], 0, 1, -1); // Set up ortho projection matrix
 
         glMatrixMode(GL_MODELVIEW);
+
+        glDisable(GL_LIGHTING);
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
     }
 
     public static void endOrtho() {
+        glEnable(GL_CULL_FACE);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_LIGHTING);
+
         glMatrixMode(GL_PROJECTION);
         glPopMatrix();
         glMatrixMode(GL_MODELVIEW);
