@@ -80,9 +80,8 @@ public class TitleScreenState implements State {
 
         if (GameInput.mouseDeltaUpLeft) {
             if (mouseOverOptionIndex != -1) {
-                StateManager.clearStates();
                 int state = menuOptionStates[mouseOverOptionIndex];
-                StateManager.addStates(state);
+                StateManager.setState(state);
             }
         }
     }

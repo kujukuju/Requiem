@@ -20,4 +20,8 @@ public class GameTime {
     public static double getInstantFPS() {
         return 1000.0 / deltaTime;
     }
+
+    public static double getDeltaTime() {
+        return deltaTime;
+    }
 }

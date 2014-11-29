@@ -21,8 +21,6 @@ import static org.lwjgl.opengl.GL11.*;
 import java.util.List;
 
 public class Requiem {
-    public static final GameInput gameInputProcessor = new GameInput();
-
     public static final GameCamera GAME_CAMERA = new GameCamera();
 
     public static boolean running;
@@ -69,11 +67,14 @@ public class Requiem {
 
     public void init() {
         int[] resolution = SettingsManager.getResolution();
-        StateManager.currentStates.add(StateManager.STATE_PLAYABLE);//TODO do this better without doing .add
+        StateManager.setState(StateManager.STATE_PLAYABLE);//TODO do this better without doing .add
 
         //TODO this shouldnt be in init
         glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);//TODO wtf
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        glEnable(GL_POLYGON_SMOOTH);
+        glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
 
         glShadeModel(GL_FLAT);
         glEnable(GL_DEPTH_TEST);
@@ -98,13 +99,8 @@ public class Requiem {
         FontManager.init();
     }
 
-    public void update(List<State> currentStates) {
-        //this has to be last apparently says my old notes... but screw it
-        gameInputProcessor.update();
-
-        for (int i = 0; i < currentStates.size(); i++) {
-            ((Updateable) currentStates.get(i)).update();
-        }
+    public void update(State currentState) {
+        currentState.update();
     }
 
     public void render() {
@@ -123,13 +119,10 @@ public class Requiem {
 
         //get the states before you update and render, because in an update call the state would change then it would render the new state before it updated
         //this would cause errors because the init() method was never ran
-        List<State> currentStates = StateManager.getCurrentStates();
+        State currentState = StateManager.getCurrentState();
 
-        update(currentStates);
-
-        for (int i = 0; i < currentStates.size(); i++) {
-            ((Renderable) currentStates.get(i)).render();
-        }
+        update(currentState);
+        currentState.render();
     }
 
     public void updateStatics() {

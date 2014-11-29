@@ -1,11 +1,15 @@
 package com.requiem.logic;
 
+import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.dynamics.DynamicsWorld;
+import com.bulletphysics.dynamics.RigidBody;
 import com.requiem.Requiem;
+import com.requiem.abstractentities.entities.Level;
 import com.requiem.abstractentities.entities.Player;
 import com.requiem.listeners.GameInput;
 import com.requiem.managers.PlayerManager;
 import com.requiem.managers.SettingsManager;
+import com.requiem.managers.StateManager;
 import com.requiem.utilities.GameTime;
 import com.requiem.utilities.PhysicsUtils;
 import org.lwjgl.input.Keyboard;
@@ -18,7 +22,7 @@ import javax.vecmath.Vector3f;
  * Created by Trent on 10/27/2014.
  */
 public class Physics {
-    public static final double GRAVITY = 0.008;
+    public static final double GRAVITY = 0.08;
     public static final double MAX_SPEED = .05;
     public static final double ACCEL = 0.004;
     public static final double FRICTION = 0.002;
@@ -26,12 +30,14 @@ public class Physics {
     public static final double TOLERANCE = 0.00001;
 
     public static DynamicsWorld dynamicsWorld;
+    public static Level currentLevel;
 
     private static boolean init;
 
     public static void init() {
         dynamicsWorld = PhysicsUtils.createDynamicsWorld();
-        dynamicsWorld.setGravity(new Vector3f(0, -0.1f, 0));
+        dynamicsWorld.setGravity(new Vector3f(0, (float) -GRAVITY, 0));
+
         //add rigid bodies
     }
 
@@ -39,10 +45,23 @@ public class Physics {
         if (!init) {
             init();
         }
+
+        dynamicsWorld.stepSimulation((float) GameTime.getDeltaTime());
+
         playerAngles();
         playerMovements();
 
         setCameraPosition();
+    }
+
+    public static void setCurrentLevel(Level currentLevel) {
+        Physics.currentLevel = currentLevel;
+
+        CollisionObject worldObject = PhysicsUtils.createCollisionObject(currentLevel.collisionShape);
+        RigidBody personBody = PhysicsUtils.createRigidBody(PlayerManager.PLAYER.collisionShape, 1);
+
+        dynamicsWorld.addCollisionObject(PhysicsUtils.createCollisionObject(currentLevel.collisionShape));
+        dynamicsWorld.addRigidBody(personBody);
     }
 
     private static void playerAngles() {
@@ -109,7 +128,6 @@ public class Physics {
             player.vel.normalize();
             player.vel.scale(MAX_SPEED);
         }
-        System.out.println(player.vel.lengthSquared() > MAX_SPEED * MAX_SPEED);
 
         Vector3d addVel = (Vector3d) player.vel.clone();
         addVel.scale(timeScale);

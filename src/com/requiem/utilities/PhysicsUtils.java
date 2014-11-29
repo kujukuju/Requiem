@@ -3,11 +3,15 @@ package com.requiem.utilities;
 import com.bulletphysics.collision.broadphase.AxisSweep3;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
+import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
+import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.IndexedMesh;
 import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.DynamicsWorld;
+import com.bulletphysics.dynamics.RigidBody;
+import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.extras.gimpact.GImpactMeshShape;
@@ -130,5 +134,18 @@ public class PhysicsUtils {
 
         // provides discrete rigid body simulation
         return new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+    }
+
+    public static RigidBody createRigidBody(CollisionShape collisionShape, float mass) {
+        RigidBodyConstructionInfo rigidBodyConstructionInfo = new RigidBodyConstructionInfo(mass, null, collisionShape);
+
+        return new RigidBody(rigidBodyConstructionInfo);
+    }
+
+    public static CollisionObject createCollisionObject(CollisionShape collisionShape) {
+        CollisionObject collisionObject = new CollisionObject();
+        collisionObject.setCollisionShape(collisionShape);
+
+        return collisionObject;
     }
 }
