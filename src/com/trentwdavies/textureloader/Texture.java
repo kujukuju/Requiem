@@ -18,34 +18,36 @@ import org.lwjgl.opengl.GL30;
 public class Texture {
 	private int mId;
 	private ByteBuffer mImageData;
-	private int mSize;
+	private int mWidth;
+	private int mHeight;
 	
 	public Texture(InputStream in, boolean mipmap) throws IOException {
 		this(ImageIO.read(in), mipmap);
 	}
 
 	public Texture(BufferedImage image, boolean mipmap) {
-		this(((DataBufferByte) image.getRaster().getDataBuffer()).getData(), image.getWidth(), mipmap);
+		this(((DataBufferByte) image.getRaster().getDataBuffer()).getData(), image.getWidth(), image.getHeight(), mipmap);
 	}
 
-	public Texture(byte[] image, int size, boolean mipmap) {
+	public Texture(byte[] image, int width, int height, boolean mipmap) {
 		ByteBuffer pb = ByteBuffer.allocateDirect(image.length).order(ByteOrder.nativeOrder());
 		pb.put(image).flip();
-		setupTexture(pb, size, mipmap);
+		setupTexture(pb, width, height, mipmap);
 	}
 
-	public Texture(ByteBuffer image, int size, boolean mipmap) {
-		setupTexture(image, size, mipmap);
+	public Texture(ByteBuffer image, int width, int height, boolean mipmap) {
+		setupTexture(image, width, height, mipmap);
 	}
 
 	public void bind() {
 		glBindTexture(GL_TEXTURE_2D, mId);
 	}
 
-	private void setupTexture(ByteBuffer image, int size, boolean mipmap) {
+	private void setupTexture(ByteBuffer image, int width, int height, boolean mipmap) {
 		mId = glGenTextures();
 		mImageData = image;
-		mSize = size;
+		mWidth = width;
+		mHeight = height;
 
 		glBindTexture(GL_TEXTURE_2D, mId);
 
@@ -53,7 +55,7 @@ public class Texture {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, 4, mSize, mSize, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, mImageData);
+		glTexImage2D(GL_TEXTURE_2D, 0, 4, mWidth, mHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, mImageData);
 
 		if(mipmap) {
 			GL30.glGenerateMipmap(GL_TEXTURE_2D);

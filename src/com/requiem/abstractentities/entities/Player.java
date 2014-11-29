@@ -10,6 +10,7 @@ import org.xml.sax.SAXException;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
+import javax.vecmath.Vector3f;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 
@@ -20,6 +21,7 @@ import static org.lwjgl.opengl.GL11.*;
  */
 public class Player extends Entity {
     public static final String PLAYER_MODEL_FILE_PATH = "assets/models/test-character.dae";
+    public static final float MASS = 1;
     private Model playerModel;
 
     private boolean init;
@@ -43,6 +45,8 @@ public class Player extends Entity {
         }
 
         collisionShape = new GImpactMeshShape(PhysicsUtils.makeTIVA(playerModel));
+        Vector3f localInertia = new Vector3f(0, 0, 0);
+        collisionShape.calculateLocalInertia(MASS, localInertia);
         init = true;
     }
 

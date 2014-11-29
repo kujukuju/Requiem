@@ -63,6 +63,18 @@ public class GraphicsUtils {
         return newMatrix;
     }
 
+    public static int nextPowerOfTwo(int n) {
+        n--;
+        n |= n >> 1;
+        n |= n >> 2;
+        n |= n >> 4;
+        n |= n >> 8;
+        n |= n >> 16;
+        n++;
+
+        return n;
+    }
+
     public static void beingOrtho() {
         int[] resolution = SettingsManager.getResolution();
         glPushMatrix(); // Duplicate top MODELVIEW matrix
