@@ -21,7 +21,7 @@ public class GameTime {
         return 1000.0 / deltaTime;
     }
 
-    public static double getDeltaTime() {
+    public static int getDeltaTime() {
         return deltaTime;
     }
 }

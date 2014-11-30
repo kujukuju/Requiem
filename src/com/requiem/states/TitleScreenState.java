@@ -122,6 +122,7 @@ public class TitleScreenState implements State {
 
             FontManager.titleScreenMenuFont.drawString(menuOptions[i], (int) drawX, (int) drawY);
         }
+        FontManager.titleScreenMenuFont.drawString("ijkl", 100, 200);
 
         //glBlendFunc(GL_ONE, GL_ZERO);
         GraphicsUtils.endOrtho();

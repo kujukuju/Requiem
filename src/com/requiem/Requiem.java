@@ -67,7 +67,8 @@ public class Requiem {
 
     public void init() {
         int[] resolution = SettingsManager.getResolution();
-        StateManager.setState(StateManager.STATE_TITLE_SCREEN);//TODO do this better without doing .add
+        //StateManager.setState(StateManager.STATE_TITLE_SCREEN);
+        StateManager.setState(StateManager.STATE_PLAYABLE);
 
         //TODO this shouldnt be in init
         glEnable(GL_BLEND);

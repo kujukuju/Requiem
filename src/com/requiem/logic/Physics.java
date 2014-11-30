@@ -1,15 +1,15 @@
 package com.requiem.logic;
 
 import com.bulletphysics.collision.dispatch.CollisionObject;
+import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.DynamicsWorld;
-import com.bulletphysics.dynamics.RigidBody;
 import com.requiem.Requiem;
 import com.requiem.abstractentities.entities.Level;
 import com.requiem.abstractentities.entities.Player;
+import com.requiem.interfaces.Collidable;
 import com.requiem.listeners.GameInput;
 import com.requiem.managers.PlayerManager;
 import com.requiem.managers.SettingsManager;
-import com.requiem.managers.StateManager;
 import com.requiem.utilities.GameTime;
 import com.requiem.utilities.PhysicsUtils;
 import org.lwjgl.input.Keyboard;
@@ -17,20 +17,23 @@ import org.lwjgl.input.Mouse;
 
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
+import java.util.Dictionary;
+import java.util.List;
 
 /**
  * Created by Trent on 10/27/2014.
  */
 public class Physics {
-    public static final double GRAVITY = 0.08;
-    public static final double MAX_SPEED = .05;
-    public static final double ACCEL = 0.004;
-    public static final double FRICTION = 0.002;
+    public static final double GRAVITY = 8;
+    public static final double ACCEL = 120;
+    public static final double MAX_SPEED = 6;
 
     public static final double TOLERANCE = 0.00001;
 
-    public static DynamicsWorld dynamicsWorld;
+    public static DiscreteDynamicsWorld dynamicsWorld;
     public static Level currentLevel;
+
+    private static List<Collidable> collidables;
 
     private static boolean init;
 
@@ -39,6 +42,17 @@ public class Physics {
         dynamicsWorld.setGravity(new Vector3f(0, (float) -GRAVITY, 0));
 
         //add rigid bodies
+        addCollidables();
+
+        init = true;
+    }
+
+    public static void addCollidables() {
+        Player mainPlayer = PlayerManager.PLAYER;
+
+        System.out.println("adding rigid bodies to dynamicsworld");
+        dynamicsWorld.addRigidBody(Physics.currentLevel.rigidBody);
+        dynamicsWorld.addRigidBody(mainPlayer.rigidBody);
     }
 
     public static void update() {
@@ -46,22 +60,22 @@ public class Physics {
             init();
         }
 
-        dynamicsWorld.stepSimulation((float) GameTime.getDeltaTime());
-
         playerAngles();
         playerMovements();
 
-        setCameraPosition();
+        dynamicsWorld.stepSimulation(GameTime.getDeltaTime() / 1000f);
+
+        cameraPosition();
     }
 
     public static void setCurrentLevel(Level currentLevel) {
         Physics.currentLevel = currentLevel;
+        Physics.currentLevel.createRigidBody();
 
-        CollisionObject worldObject = PhysicsUtils.createCollisionObject(currentLevel.collisionShape);
-        RigidBody personBody = PhysicsUtils.createRigidBody(PlayerManager.PLAYER.collisionShape, 1);
-
-        dynamicsWorld.addCollisionObject(PhysicsUtils.createCollisionObject(currentLevel.collisionShape));
-        dynamicsWorld.addRigidBody(personBody);
+        if (init) {
+            //TODO if youre changing the level after its been initialized you have to do a lot more than this probably
+            dynamicsWorld.addRigidBody(Physics.currentLevel.rigidBody);
+        }
     }
 
     private static void playerAngles() {
@@ -76,65 +90,41 @@ public class Physics {
         if (player.ang.x < -89) {
             player.ang.x = -89;
         }
+        player.rigidBody.setAngularVelocity(new Vector3f(0, 0, 0));
     }
 
     //TODO need to do air friction if youre going faster than max speed
     private static void playerMovements() {
-        double timeScale = GameTime.getTimeScale();
         Player player = PlayerManager.PLAYER;
+        //Transform playerTransform = new Transform();
+        //player.rigidBody.getMotionState().getWorldTransform(playerTransform);
 
         double yawRadians = Math.toRadians(player.ang.y);
-        double originalSpeedSquared = player.vel.lengthSquared();
+        double originalSpeedSquaredXZ = new Vector3d(player.vel.x, 0, player.vel.z).lengthSquared();
 
-        Vector3d accelVec = new Vector3d();
+        Vector3d applyVec = new Vector3d();
         if (GameInput.keysDown[Keyboard.KEY_W]) {
-            accelVec.add(new Vector3d(Math.sin(yawRadians), 0, -Math.cos(yawRadians)));
+            applyVec.add(new Vector3d(Math.sin(yawRadians), 0, -Math.cos(yawRadians)));
         }
         if (GameInput.keysDown[Keyboard.KEY_S]) {
-            accelVec.add(new Vector3d(-Math.sin(yawRadians), 0, Math.cos(yawRadians)));
+            applyVec.add(new Vector3d(-Math.sin(yawRadians), 0, Math.cos(yawRadians)));
         }
 
         if (GameInput.keysDown[Keyboard.KEY_D]) {
-            accelVec.add(new Vector3d(Math.sin(yawRadians + Math.PI / 2), 0, -Math.cos(yawRadians + Math.PI / 2)));
+            applyVec.add(new Vector3d(Math.sin(yawRadians + Math.PI / 2), 0, -Math.cos(yawRadians + Math.PI / 2)));
         }
         if (GameInput.keysDown[Keyboard.KEY_A]) {
-            accelVec.add(new Vector3d(-Math.sin(yawRadians + Math.PI / 2), 0, Math.cos(yawRadians + Math.PI / 2)));
+            applyVec.add(new Vector3d(-Math.sin(yawRadians + Math.PI / 2), 0, Math.cos(yawRadians + Math.PI / 2)));
         }
-        if (accelVec.lengthSquared() > 0) {
-            accelVec.normalize();
-            accelVec.scale(ACCEL);
-            accelVec.scale(timeScale);
+        if (applyVec.lengthSquared() > 0 && originalSpeedSquaredXZ < MAX_SPEED * MAX_SPEED) {
+            applyVec.normalize();
+            applyVec.scale(ACCEL);
+            Vector3f applyVec3f = new Vector3f((float) applyVec.x, (float) applyVec.y, (float) applyVec.z);
+            player.rigidBody.applyCentralForce(applyVec3f);
         }
-        player.vel.add(accelVec);
-
-        if (player.vel.lengthSquared() > 0) {
-            //apply friction
-            Vector3d frictionVector = (Vector3d) player.vel.clone();
-            frictionVector.normalize();
-            frictionVector.scale(FRICTION);
-            frictionVector.scale(timeScale);
-
-            if (player.vel.lengthSquared() < frictionVector.lengthSquared()) {
-                //will go past 0 speed
-                player.vel.set(0, 0, 0);
-            } else {
-                player.vel.sub(frictionVector);
-            }
-        }
-
-        double newSpeedSquared = player.vel.lengthSquared();
-        if (originalSpeedSquared <= MAX_SPEED * MAX_SPEED + TOLERANCE && newSpeedSquared > MAX_SPEED * MAX_SPEED) {
-            //went over max speed due to wasd key acceleration
-            player.vel.normalize();
-            player.vel.scale(MAX_SPEED);
-        }
-
-        Vector3d addVel = (Vector3d) player.vel.clone();
-        addVel.scale(timeScale);
-        player.pos.add(addVel);
     }
 
-    private static void setCameraPosition() {
+    private static void cameraPosition() {
         Player player = PlayerManager.PLAYER;
         double pitch = Math.toRadians(player.ang.x);
         double yaw = Math.toRadians(player.ang.y);

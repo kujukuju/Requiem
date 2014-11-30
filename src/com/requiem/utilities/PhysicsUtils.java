@@ -2,12 +2,15 @@ package com.requiem.utilities;
 
 import com.bulletphysics.collision.broadphase.AxisSweep3;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
+import com.bulletphysics.collision.broadphase.DbvtBroadphase;
+import com.bulletphysics.collision.dispatch.CollisionConfiguration;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.IndexedMesh;
 import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
+import com.bulletphysics.collision.shapes.TriangleMeshShape;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
@@ -15,6 +18,10 @@ import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.extras.gimpact.GImpactMeshShape;
+import com.bulletphysics.linearmath.DefaultMotionState;
+import com.bulletphysics.linearmath.MotionState;
+import com.bulletphysics.linearmath.Transform;
+import com.requiem.logic.Physics;
 import com.trentwdavies.daeloader.Face;
 import com.trentwdavies.daeloader.Geometry;
 import com.trentwdavies.daeloader.GeometryObject;
@@ -24,8 +31,7 @@ import com.trentwdavies.daeloader.physics.PhysicsGeometry;
 import com.trentwdavies.daeloader.physics.PhysicsGeometryObject;
 import com.trentwdavies.daeloader.physics.PhysicsModel;
 
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3f;
+import javax.vecmath.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
@@ -77,9 +83,9 @@ public class PhysicsUtils {
 
 
     public static TriangleIndexVertexArray makeTIVA(Model model) {
-        PhysicsModel playerPhysicsModel = PhysicsUtils.getPhysicsModel(model);
+        PhysicsModel physicsModel = PhysicsUtils.getPhysicsModel(model);
 
-        PhysicsGeometry geo = playerPhysicsModel.physicsGeometry;
+        PhysicsGeometry geo = physicsModel.physicsGeometry;
         IndexedMesh im = new IndexedMesh();
 
         ByteBuffer vertBuf = ByteBuffer.allocateDirect(geo.vertexList.size() * 3 * 8).order(ByteOrder.nativeOrder());
@@ -115,31 +121,42 @@ public class PhysicsUtils {
     }
 
 
-    public static DynamicsWorld createDynamicsWorld() {
-        DefaultCollisionConfiguration collisionConfiguration = new DefaultCollisionConfiguration();
-        CollisionDispatcher dispatcher = new CollisionDispatcher(collisionConfiguration);
+    public static DiscreteDynamicsWorld createDynamicsWorld() {
+        DiscreteDynamicsWorld dynamicsWorld = null;
 
-        // the maximum size of the collision world. Make sure objects stay
-        // within these boundaries. Don't make the world AABB size too large, it
-        // will harm simulation quality and performance
-        Vector3f worldAabbMin = new Vector3f(-1000, -1000, -1000);
-        Vector3f worldAabbMax = new Vector3f( 1000,  1000,  1000);
-        // maximum number of objects
-        final int maxProxies = 1024;
-        // Broadphase computes an conservative approximate list of colliding pairs
-        BroadphaseInterface broadphase = new AxisSweep3(worldAabbMin, worldAabbMax, maxProxies);
+        //checks collisions on the planes to see if an object may be colliding
+        BroadphaseInterface broadphaseInterface = new DbvtBroadphase();
+        CollisionConfiguration collisionConfiguration = new DefaultCollisionConfiguration();
+        //takes objects that may be colliding and calculates whether or not theyre colliding
+        CollisionDispatcher collisionDispatcher = new CollisionDispatcher(collisionConfiguration);
+        ConstraintSolver constraintSolver = new SequentialImpulseConstraintSolver();
 
-        // constraint (joint) solver
-        ConstraintSolver solver = new SequentialImpulseConstraintSolver();
+        //the world in which the physics calculations are done
+        dynamicsWorld = new DiscreteDynamicsWorld(collisionDispatcher, broadphaseInterface, constraintSolver, collisionConfiguration);
 
-        // provides discrete rigid body simulation
-        return new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+        return dynamicsWorld;
     }
 
-    public static RigidBody createRigidBody(CollisionShape collisionShape, float mass) {
-        RigidBodyConstructionInfo rigidBodyConstructionInfo = new RigidBodyConstructionInfo(mass, null, collisionShape);
+    public static RigidBodyConstructionInfo createRigidBodyConstructionInfo(float mass, CollisionShape collisionShape) {
+        Point3d position = new Point3d(0, 0, 0);
 
-        return new RigidBody(rigidBodyConstructionInfo);
+        return createRigidBodyConstructionInfo(mass, position, collisionShape);
+    }
+
+    public static RigidBodyConstructionInfo createRigidBodyConstructionInfo(float mass, Point3d position, CollisionShape collisionShape) {
+        Vector3f localInertia = new Vector3f(0, 0, 0);
+
+        return createRigidBodyConstructionInfo(mass, position, collisionShape, localInertia);
+    }
+
+    public static RigidBodyConstructionInfo createRigidBodyConstructionInfo(float mass, Point3d position, CollisionShape collisionShape, Vector3f localInertia) {
+        Vector3f positionVector = new Vector3f((float) position.x, (float) position.y, (float) position.z);
+        Quat4f angles = new Quat4f(0, 0, 0, 1);
+        Matrix4f transformMatrix = new Matrix4f(angles, positionVector, 1);
+        MotionState motionState = new DefaultMotionState(new Transform(transformMatrix));
+        RigidBodyConstructionInfo rigidBodyConstructionInfo = new RigidBodyConstructionInfo(mass, motionState, collisionShape, localInertia);
+
+        return rigidBodyConstructionInfo;
     }
 
     public static CollisionObject createCollisionObject(CollisionShape collisionShape) {

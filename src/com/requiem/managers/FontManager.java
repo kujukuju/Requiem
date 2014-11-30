@@ -18,19 +18,11 @@ public class FontManager {
     //private static final String ABILITY_BAR_NUMBER_FONT_FILE_PATH = "assets/fonts/NeutraDisplay-BoldAlt.ttf";
 
     public static void init() {
-        try {
-            generateFonts();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (FontFormatException e) {
-            e.printStackTrace();
-        }
     }
 
     public static void generateFonts() throws IOException, FontFormatException {
         int[] resolution = SettingsManager.getResolution();
         float scale = resolution[1] * 0.002f;
-        System.out.println("Font Scale: " + scale);
 
         Font titleScreenMenuFontAWT = Font.createFont(Font.TRUETYPE_FONT, new File(TITLE_SCREEN_MENU_FONT_FILE_PATH));
         titleScreenMenuFontAWT = titleScreenMenuFontAWT.deriveFont(Font.PLAIN, 128);

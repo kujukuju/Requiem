@@ -11,8 +11,8 @@ import org.lwjgl.opengl.PixelFormat;
 public class RequiemLauncher {
     public static Requiem requiem;
     public static void main(String[] args) {
-        int width = (int) (1920 * 0.5);
-        int height = (int) (1080 * 0.5);
+        int width = (int) (1920 * 0.6);
+        int height = (int) (1080 * 0.6);
         try {
             Display.setDisplayMode(new DisplayMode(width, height));
             Display.create(new PixelFormat(8, 8, 0, 8));

@@ -22,9 +22,14 @@ public class PlayableState implements State {
     public void init() {
         Mouse.setGrabbed(true);
 
-        level = new Level(LEVEL_FILE_PATH);
+        changeLevel(new Level(LEVEL_FILE_PATH));
+        Physics.setCurrentLevel(level);
 
         init = true;
+    }
+
+    public void changeLevel(Level newLevel) {
+        this.level = newLevel;
     }
 
     @Override
@@ -34,6 +39,7 @@ public class PlayableState implements State {
 
         level.update();
         PlayerManager.PLAYER.update();
+
         Physics.update();
     }
 
