@@ -121,6 +121,48 @@ public class PhysicsUtils {
     }
 
 
+    public static TriangleIndexVertexArray makeTriangleIndexVertexArray(Model model) {
+        PhysicsModel physicsModel = PhysicsUtils.getPhysicsModel(model);
+
+        PhysicsGeometry physicsGeometry = physicsModel.physicsGeometry;
+        List<Point3d> vertexList = physicsGeometry.vertexList;
+        PhysicsGeometryObject physicsGeometryObject = physicsGeometry.physicsGeometryObject;
+        List<PhysicsFace> faceList = physicsGeometryObject.faceList;
+
+        int numTriangles = physicsGeometryObject.faceList.size();
+        ByteBuffer triangleIndexBase = ByteBuffer.allocateDirect(numTriangles * 3 * 4);
+        for (int i = 0; i < faceList.size(); i++) {
+            int index = i * 3;
+            index *= 4;//for the bytes in an int
+            int stride = 4;
+            PhysicsFace physicsFace = faceList.get(i);
+            triangleIndexBase.putInt(index, physicsFace.vertexIndexPointer.get(0) * 3 * 4);
+            triangleIndexBase.putInt(index + stride, physicsFace.vertexIndexPointer.get(1) * 3 * 4);
+            triangleIndexBase.putInt(index + stride * 2, physicsFace.vertexIndexPointer.get(2) * 3 * 4);
+        }
+        triangleIndexBase.flip();//TODO is this necessary?
+        int triangleIndexStride = 3 * 4;
+        int numVertices = vertexList.size();
+        ByteBuffer vertexBase = ByteBuffer.allocateDirect(numVertices * 3 * 4);
+        for (int i = 0; i < vertexList.size(); i++) {
+            int index = i * 3;
+            index *= 4;//for the bytes in a float
+            int stride = 4;
+            Point3d vertex = vertexList.get(i);
+            float x = (float) vertex.x;
+            float y = (float) vertex.y;
+            float z = (float) vertex.z;
+            vertexBase.putFloat(index, x);
+            vertexBase.putFloat(index + stride, y);
+            vertexBase.putFloat(index + stride * 2, z);
+        }
+        vertexBase.flip();//TODO same
+        int vertexStride = 3 * 4;
+
+        return new TriangleIndexVertexArray(numTriangles, triangleIndexBase, triangleIndexStride, numVertices, vertexBase, vertexStride);
+    }
+
+
     public static DiscreteDynamicsWorld createDynamicsWorld() {
         DiscreteDynamicsWorld dynamicsWorld = null;
 

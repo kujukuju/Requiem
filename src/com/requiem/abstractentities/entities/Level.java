@@ -40,8 +40,8 @@ public class Level extends Entity implements Collidable {
     public void init() {
         levelModel = (Model) AssetManager.getAsset(levelPath);
 
-        //collisionShape = new BvhTriangleMeshShape(PhysicsUtils.makeTIVA(levelModel), true);
-        collisionShape = new StaticPlaneShape(new Vector3f(0, 1, 0), 0f);
+        collisionShape = new BvhTriangleMeshShape(PhysicsUtils.makeTriangleIndexVertexArray(levelModel), true);
+        //collisionShape = new StaticPlaneShape(new Vector3f(0, 1, 0), 0f);
         System.out.println("creating level rigid body");
         createRigidBody();
 
