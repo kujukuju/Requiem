@@ -32,10 +32,7 @@ import com.trentwdavies.daeloader.physics.PhysicsGeometryObject;
 import com.trentwdavies.daeloader.physics.PhysicsModel;
 
 import javax.vecmath.*;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.DoubleBuffer;
-import java.nio.IntBuffer;
+import java.nio.*;
 import java.util.List;
 
 /**
@@ -125,39 +122,35 @@ public class PhysicsUtils {
         PhysicsModel physicsModel = PhysicsUtils.getPhysicsModel(model);
 
         PhysicsGeometry physicsGeometry = physicsModel.physicsGeometry;
-        List<Point3d> vertexList = physicsGeometry.vertexList;
         PhysicsGeometryObject physicsGeometryObject = physicsGeometry.physicsGeometryObject;
+        List<Point3d> vertexList = physicsGeometry.vertexList;
         List<PhysicsFace> faceList = physicsGeometryObject.faceList;
 
         int numTriangles = physicsGeometryObject.faceList.size();
-        ByteBuffer triangleIndexBase = ByteBuffer.allocateDirect(numTriangles * 3 * 4);
+        int triangleIndexStride = 3 * 4;
+        int numVertices = vertexList.size();
+        int vertexStride = 3 * 4;
+
+        ByteBuffer triangleIndexBase = ByteBuffer.allocateDirect(numTriangles * 3 * 4).order(ByteOrder.nativeOrder());
         for (int i = 0; i < faceList.size(); i++) {
-            int index = i * 3;
-            index *= 4;//for the bytes in an int
             int stride = 4;
+            int index = i * 3 * stride;
             PhysicsFace physicsFace = faceList.get(i);
             triangleIndexBase.putInt(index, physicsFace.vertexIndexPointer.get(0) * 3 * 4);
             triangleIndexBase.putInt(index + stride, physicsFace.vertexIndexPointer.get(1) * 3 * 4);
             triangleIndexBase.putInt(index + stride * 2, physicsFace.vertexIndexPointer.get(2) * 3 * 4);
         }
-        triangleIndexBase.flip();//TODO is this necessary?
-        int triangleIndexStride = 3 * 4;
-        int numVertices = vertexList.size();
-        ByteBuffer vertexBase = ByteBuffer.allocateDirect(numVertices * 3 * 4);
+
+
+        ByteBuffer vertexBase = ByteBuffer.allocateDirect(numVertices * 3 * 4).order(ByteOrder.nativeOrder());
         for (int i = 0; i < vertexList.size(); i++) {
-            int index = i * 3;
-            index *= 4;//for the bytes in a float
             int stride = 4;
+            int index = i * 3 * stride;
             Point3d vertex = vertexList.get(i);
-            float x = (float) vertex.x;
-            float y = (float) vertex.y;
-            float z = (float) vertex.z;
-            vertexBase.putFloat(index, x);
-            vertexBase.putFloat(index + stride, y);
-            vertexBase.putFloat(index + stride * 2, z);
+            vertexBase.putFloat(index, (float) vertex.x);
+            vertexBase.putFloat(index + stride, (float) vertex.y);
+            vertexBase.putFloat(index + stride * 2, (float) vertex.z);
         }
-        vertexBase.flip();//TODO same
-        int vertexStride = 3 * 4;
 
         return new TriangleIndexVertexArray(numTriangles, triangleIndexBase, triangleIndexStride, numVertices, vertexBase, vertexStride);
     }
