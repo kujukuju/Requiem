@@ -5,7 +5,7 @@ Requiem
 
 Choose a side and fight in a world that has become scarce of the spirits that once roamed it. Nearing extinction.
 
-The spirit genocide began when men discovered the ancient secret that a spirits abilities can be harvested by killing it. At only the most evil of spirits were killed - the ones who have murdered countless people. However, over time, ideas of what qualified as evil began to change. The realm split into two nations. One nation believes that all spirits are inherently evil and humanities only hope of survival is to destroy them all with the powers that they have taken. The other swears to protect the spirits, serving as their guardians and using the powers that they have acquired for the good of the spirits. The two are constantly at war.
+The spirit genocide began when men discovered the ancient secret that a spirits abilities can be harvested by killing it. At first only the most evil of spirits were killed - the ones who have murdered countless people. However, over time, ideas of what qualified as evil began to change. The realm split into two nations. One nation believes that all spirits are inherently evil and humanities only hope of survival is to destroy them all with the powers that they have taken. The other swears to protect the spirits, serving as their guardians and using the powers that they have acquired for the good of the spirits. The two are constantly at war.
 
 Once a spirit has been killed it's power passes on to the bloodline of the living thing that killed it. If the living thing that killed the spirit and all of it's blood descendants are killed, the spirits power passes on yet again to whatever ended the bloodline.
 
