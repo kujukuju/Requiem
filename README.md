@@ -3,4 +3,4 @@ Requiem
 
 Low poly online 3d game in development
 
-### Art by Teja Mae Godson ###
+### Environmental Artist/Graphic Designer: Teja Mae Godson ###
