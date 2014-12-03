@@ -9,6 +9,7 @@ import com.requiem.listeners.GameInput;
 import com.requiem.managers.FontManager;
 import com.requiem.managers.SettingsManager;
 import com.requiem.managers.StateManager;
+import com.requiem.states.PlayableState;
 import com.requiem.states.TitleScreenState;
 import com.requiem.utilities.AssetManager;
 import com.requiem.utilities.GameTime;
@@ -57,6 +58,7 @@ public class Requiem {
 
     public void loadStuff() {
         AssetManager.queue(TitleScreenState.LEVEL_FILE_PATH, Model.class);
+        AssetManager.queue(PlayableState.LEVEL_FILE_PATH, Model.class);
         AssetManager.queue(Player.PLAYER_MODEL_FILE_PATH, Model.class);
         AssetManager.load();
         AssetManager.pauseWhileLoading();

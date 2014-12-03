@@ -7,10 +7,7 @@ import com.bulletphysics.collision.dispatch.CollisionConfiguration;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
-import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.collision.shapes.IndexedMesh;
-import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
-import com.bulletphysics.collision.shapes.TriangleMeshShape;
+import com.bulletphysics.collision.shapes.*;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
@@ -26,135 +23,86 @@ import com.trentwdavies.daeloader.Face;
 import com.trentwdavies.daeloader.Geometry;
 import com.trentwdavies.daeloader.GeometryObject;
 import com.trentwdavies.daeloader.Model;
-import com.trentwdavies.daeloader.physics.PhysicsFace;
-import com.trentwdavies.daeloader.physics.PhysicsGeometry;
-import com.trentwdavies.daeloader.physics.PhysicsGeometryObject;
-import com.trentwdavies.daeloader.physics.PhysicsModel;
 
 import javax.vecmath.*;
 import java.nio.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Trent on 11/27/2014.
  */
 public class PhysicsUtils {
-    public static PhysicsModel getPhysicsModel(Model graphicsModel) {
-        PhysicsModel physicsModel = new PhysicsModel();
-        PhysicsGeometry physicsGeometry = new PhysicsGeometry();
-        PhysicsGeometryObject physicsGeometryObject = new PhysicsGeometryObject();
-
-        List<Geometry> graphicsGeometryList = graphicsModel.geometryList;
-        int offset = 0;
-        for (int i = 0; i < graphicsGeometryList.size(); i++) {
-            Geometry curGraphicsGeometry = graphicsGeometryList.get(i);
-            List<Point3d> curVertexList = curGraphicsGeometry.vertexList;
-
-            Point3d[] vertexListArray = new Point3d[curVertexList.size()];
-            physicsGeometry.addVertices(curVertexList.toArray(vertexListArray));
-
-            for (int a = 0; a < curGraphicsGeometry.geometryObjectList.size(); a++) {
-                GeometryObject curGraphicsGeometryObject = curGraphicsGeometry.geometryObjectList.get(a);
-
-                for (int b = 0; b < curGraphicsGeometryObject.faceList.size(); b++) {
-                    Face curGraphicsFace = curGraphicsGeometryObject.faceList.get(b);
-                    PhysicsFace physicsFace = new PhysicsFace();
-                    List<Integer> vertexIndexPointerList = curGraphicsFace.vertexIndexPointer;
-
-                    for (int c = 0; c < vertexIndexPointerList.size(); c++) {
-                        physicsFace.addVertexPointer(vertexIndexPointerList.get(c) + offset);
-                    }
-
-                    physicsGeometryObject.addPhysicsFaces(physicsFace);
-                }
-            }
-
-            offset += curGraphicsGeometry.vertexList.size();
-        }
-
-        physicsGeometry.setPhysicsGeometryObject(physicsGeometryObject);
-        physicsModel.setPhysicsGeometry(physicsGeometry);
-
-        return physicsModel;
-    }
+    public static TriangleIndexVertexArray makeTriangleIndexVertexArray(Geometry geometry) {
+        IndexedMesh indexedMesh = new IndexedMesh();
+        List<GeometryObject> geometryObjectList = geometry.geometryObjectList;
 
 
-    public static TriangleIndexVertexArray makeTIVA(Model model) {
-        PhysicsModel physicsModel = PhysicsUtils.getPhysicsModel(model);
+        List<Point3d> vertexList = geometry.vertexList;
+        List<Face> faceList = new ArrayList<Face>();
 
-        PhysicsGeometry geo = physicsModel.physicsGeometry;
-        IndexedMesh im = new IndexedMesh();
-
-        ByteBuffer vertBuf = ByteBuffer.allocateDirect(geo.vertexList.size() * 3 * 8).order(ByteOrder.nativeOrder());
-        DoubleBuffer db = vertBuf.asDoubleBuffer();
-
-        im.numVertices = geo.vertexList.size();
-        for(Point3d pt : geo.vertexList) {
-            db.put(pt.x);
-            db.put(pt.y);
-            db.put(pt.z);
-        }
-        im.vertexBase = vertBuf;
-
-
-        List<PhysicsFace> faces = geo.physicsGeometryObject.faceList;
-        ByteBuffer indexBuf = ByteBuffer.allocateDirect(faces.size() * 3 * 4).order(ByteOrder.nativeOrder());
-        IntBuffer ib = indexBuf.asIntBuffer();
-
-        im.numTriangles = faces.size();
-        for(PhysicsFace face : faces) {
-            ib.put(face.vertexIndexPointer.get(0));
-            ib.put(face.vertexIndexPointer.get(1));
-            ib.put(face.vertexIndexPointer.get(2));
-        }
-        im.triangleIndexBase = indexBuf;
-
-        im.vertexStride = 24;
-        im.triangleIndexStride = 12;
-
-        TriangleIndexVertexArray tiva = new TriangleIndexVertexArray();
-        tiva.addIndexedMesh(im);
-        return tiva;
-    }
-
-
-    public static TriangleIndexVertexArray makeTriangleIndexVertexArray(Model model) {
-        PhysicsModel physicsModel = PhysicsUtils.getPhysicsModel(model);
-
-        PhysicsGeometry physicsGeometry = physicsModel.physicsGeometry;
-        PhysicsGeometryObject physicsGeometryObject = physicsGeometry.physicsGeometryObject;
-        List<Point3d> vertexList = physicsGeometry.vertexList;
-        List<PhysicsFace> faceList = physicsGeometryObject.faceList;
-
-        int numTriangles = physicsGeometryObject.faceList.size();
+        int numTriangles = 0;
         int triangleIndexStride = 3 * 4;
         int numVertices = vertexList.size();
         int vertexStride = 3 * 4;
 
-        ByteBuffer triangleIndexBase = ByteBuffer.allocateDirect(numTriangles * 3 * 4).order(ByteOrder.nativeOrder());
+        //calculate num triangles and fill facelist
+        for (int i = 0; i < geometryObjectList.size(); i++) {
+            GeometryObject geometryObject = geometryObjectList.get(i);
+            List<Face> curFaceList = geometryObject.faceList;
+            for (int a = 0; a < curFaceList.size(); a++) {
+                faceList.add(curFaceList.get(a));
+            }
+            numTriangles += curFaceList.size();
+        }
+
+        int[] triangleIndexArray = new int[numTriangles * 3];
         for (int i = 0; i < faceList.size(); i++) {
-            int stride = 4;
-            int index = i * 3 * stride;
-            PhysicsFace physicsFace = faceList.get(i);
-            triangleIndexBase.putInt(index, physicsFace.vertexIndexPointer.get(0) * 3 * 4);
-            triangleIndexBase.putInt(index + stride, physicsFace.vertexIndexPointer.get(1) * 3 * 4);
-            triangleIndexBase.putInt(index + stride * 2, physicsFace.vertexIndexPointer.get(2) * 3 * 4);
+            Face curFace = faceList.get(i);
+            triangleIndexArray[i * 3] = curFace.vertexIndexPointer.get(0);
+            triangleIndexArray[i * 3 + 1] = curFace.vertexIndexPointer.get(1);
+            triangleIndexArray[i * 3 + 2] = curFace.vertexIndexPointer.get(2);
         }
-
-
-        ByteBuffer vertexBase = ByteBuffer.allocateDirect(numVertices * 3 * 4).order(ByteOrder.nativeOrder());
+        float[] vertexArray = new float[numVertices * 3];
         for (int i = 0; i < vertexList.size(); i++) {
-            int stride = 4;
-            int index = i * 3 * stride;
-            Point3d vertex = vertexList.get(i);
-            vertexBase.putFloat(index, (float) vertex.x);
-            vertexBase.putFloat(index + stride, (float) vertex.y);
-            vertexBase.putFloat(index + stride * 2, (float) vertex.z);
+            vertexArray[i * 3] = (float) vertexList.get(i).x;
+            vertexArray[i * 3 + 1] = (float) vertexList.get(i).y;
+            vertexArray[i * 3 + 2] = (float) vertexList.get(i).z;
         }
 
-        return new TriangleIndexVertexArray(numTriangles, triangleIndexBase, triangleIndexStride, numVertices, vertexBase, vertexStride);
+
+        ByteBuffer triangleIndexBase = ByteBuffer.allocateDirect(numTriangles * triangleIndexStride).order(ByteOrder.nativeOrder());
+        triangleIndexBase.asIntBuffer().put(triangleIndexArray);
+
+        ByteBuffer vertexBase = ByteBuffer.allocateDirect(numVertices * vertexStride).order(ByteOrder.nativeOrder());
+        vertexBase.asFloatBuffer().put(vertexArray);
+
+
+        indexedMesh.numTriangles = numTriangles;
+        indexedMesh.triangleIndexBase = triangleIndexBase;
+        indexedMesh.triangleIndexStride = triangleIndexStride;
+        indexedMesh.numVertices = numVertices;
+        indexedMesh.vertexBase = vertexBase;
+        indexedMesh.vertexStride = vertexStride;
+
+        TriangleIndexVertexArray triangleIndexVertexArray = new TriangleIndexVertexArray();
+        triangleIndexVertexArray.addIndexedMesh(indexedMesh);
+
+        return triangleIndexVertexArray;
     }
 
+    public static BvhTriangleMeshShape[] getBvhTriangleMeshShapes(Model model, boolean useQuantizedAabbCompression) {
+        List<Geometry> geometryList = model.geometryList;
+        System.out.println("WHAT: " + geometryList.size());
+        BvhTriangleMeshShape[] bvhTriangleMeshShapeArray = new BvhTriangleMeshShape[geometryList.size()];
+
+        for (int i = 0; i < geometryList.size(); i++) {
+            TriangleIndexVertexArray triangleIndexVertexArray = makeTriangleIndexVertexArray(geometryList.get(i));
+            bvhTriangleMeshShapeArray[i] = new BvhTriangleMeshShape(triangleIndexVertexArray, useQuantizedAabbCompression);
+        }
+
+        return bvhTriangleMeshShapeArray;
+    }
 
     public static DiscreteDynamicsWorld createDynamicsWorld() {
         DiscreteDynamicsWorld dynamicsWorld = null;

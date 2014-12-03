@@ -5,6 +5,7 @@ import com.requiem.abstractentities.entities.Level;
 import com.requiem.interfaces.State;
 import com.requiem.logic.Physics;
 import com.requiem.managers.PlayerManager;
+import com.requiem.utilities.GameTime;
 import org.lwjgl.input.Mouse;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -34,6 +35,7 @@ public class PlayableState implements State {
 
     @Override
     public void update() {
+        System.out.println(GameTime.getDeltaTime());
         if (!init)
             init();
 

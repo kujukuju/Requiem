@@ -25,7 +25,8 @@ import java.util.List;
  */
 public class Physics {
     public static final double GRAVITY = 8;
-    public static final double ACCEL = 120;
+    //public static final double ACCEL = 120;
+    public static final double ACCEL = 40;
     public static final double MAX_SPEED = 6;
 
     public static final double TOLERANCE = 0.00001;
@@ -51,8 +52,8 @@ public class Physics {
         Player mainPlayer = PlayerManager.PLAYER;
 
         System.out.println("adding rigid bodies to dynamicsworld");
-        dynamicsWorld.addRigidBody(Physics.currentLevel.rigidBody);
-        dynamicsWorld.addRigidBody(mainPlayer.rigidBody);
+        Physics.currentLevel.addToDynamicsWorld(dynamicsWorld);
+        mainPlayer.addToDynamicsWorld(dynamicsWorld);
     }
 
     public static void update() {
@@ -63,18 +64,17 @@ public class Physics {
         playerAngles();
         playerMovements();
 
-        dynamicsWorld.stepSimulation(GameTime.getDeltaTime() / 1000f);
+        dynamicsWorld.stepSimulation(GameTime.getDeltaTime() / 1000f, 10);
 
         cameraPosition();
     }
 
     public static void setCurrentLevel(Level currentLevel) {
         Physics.currentLevel = currentLevel;
-        Physics.currentLevel.createRigidBody();
 
         if (init) {
             //TODO if youre changing the level after its been initialized you have to do a lot more than this probably
-            dynamicsWorld.addRigidBody(Physics.currentLevel.rigidBody);
+            Physics.currentLevel.addToDynamicsWorld(dynamicsWorld);
         }
     }
 
@@ -90,6 +90,7 @@ public class Physics {
         if (player.ang.x < -89) {
             player.ang.x = -89;
         }
+        player.rigidBody.setAngularFactor(0);
         player.rigidBody.setAngularVelocity(new Vector3f(0, 0, 0));
     }
 
@@ -116,7 +117,7 @@ public class Physics {
         if (GameInput.keysDown[Keyboard.KEY_A]) {
             applyVec.add(new Vector3d(-Math.sin(yawRadians + Math.PI / 2), 0, Math.cos(yawRadians + Math.PI / 2)));
         }
-        if (applyVec.lengthSquared() > 0 && originalSpeedSquaredXZ < MAX_SPEED * MAX_SPEED) {
+        if (applyVec.lengthSquared() > 0/* && originalSpeedSquaredXZ < MAX_SPEED * MAX_SPEED*/) {
             applyVec.normalize();
             applyVec.scale(ACCEL);
             Vector3f applyVec3f = new Vector3f((float) applyVec.x, (float) applyVec.y, (float) applyVec.z);

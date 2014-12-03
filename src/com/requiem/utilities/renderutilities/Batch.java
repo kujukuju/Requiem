@@ -40,7 +40,7 @@ public class Batch {
 
                                 glNormal3d(normalPoint3d.x, normalPoint3d.y, normalPoint3d.z);
                             }
-                            glVertex3d(vertexPoint3d.x, vertexPoint3d.y, vertexPoint3d.z);
+                            glVertex3f((float) vertexPoint3d.x, (float) vertexPoint3d.y, (float) vertexPoint3d.z);
                         }
 
                     glEnd();

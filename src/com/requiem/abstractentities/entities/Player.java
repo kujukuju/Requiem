@@ -6,6 +6,7 @@ import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.BvhTriangleMeshShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.SphereShape;
+import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
 import com.bulletphysics.extras.gimpact.GImpactMeshShape;
@@ -34,7 +35,7 @@ public class Player extends Entity implements Collidable {
     public CollisionShape collisionShape;
     public RigidBody rigidBody;
     public static final float MASS = 2;
-    public static final float FRICTION = 4;
+    public static final float FRICTION = 0;
     public static final float RESTITUTION = 0.1f;
 
     private boolean init;
@@ -57,11 +58,11 @@ public class Player extends Entity implements Collidable {
             e.printStackTrace();
         }
 
-        pos = new Point3d(-5, 5, -6);
+        pos = new Point3d(-5, 6, -6);
 
         //collisionShape = new BvhTriangleMeshShape(PhysicsUtils.makeTIVA(playerModel), true);
-        collisionShape = new SphereShape(0.1f);
-        //collisionShape = new BoxShape(new Vector3f(0.1f, 0.1f, 0.1f));
+        //collisionShape = new SphereShape(0.1f);
+        collisionShape = new BoxShape(new Vector3f(0.2f, 1.5f, 0.2f));
         Vector3f localInertia = new Vector3f(0, 0, 0);
         collisionShape.calculateLocalInertia(MASS, localInertia);
         System.out.println("creating player rigid body");
@@ -90,17 +91,12 @@ public class Player extends Entity implements Collidable {
     public void render() {
         glPushMatrix();
 
-        glTranslated(pos.x, pos.y, pos.z);
+        glTranslated(pos.x, pos.y - 1.5, pos.z);
         glRotated(-ang.y, 0, 1, 0);
 
         Batch.renderModel(playerModel);
 
         glPopMatrix();
-    }
-
-    @Override
-    public CollisionShape getCollisionShape() {
-        return collisionShape;
     }
 
     @Override
@@ -115,12 +111,7 @@ public class Player extends Entity implements Collidable {
     }
 
     @Override
-    public void setRigidBody(RigidBody rigidBody) {
-        this.rigidBody = rigidBody;
-    }
-
-    @Override
-    public RigidBody getRigidBody() {
-        return rigidBody;
+    public void addToDynamicsWorld(DynamicsWorld dynamicsWorld) {
+        dynamicsWorld.addRigidBody(rigidBody);
     }
 }
