@@ -1,6 +1,7 @@
 package com.requiem.managers;
 
 import com.trentwdavies.fontloader.StaticFont;
+import org.lwjgl.opengl.Display;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -21,12 +22,11 @@ public class FontManager {
     }
 
     public static void generateFonts() throws IOException, FontFormatException {
-        int[] resolution = SettingsManager.getResolution();
-        float scale = resolution[1] * 0.002f;
+        float scale = Display.getHeight() * 0.006f;
 
         Font titleScreenMenuFontAWT = Font.createFont(Font.TRUETYPE_FONT, new File(TITLE_SCREEN_MENU_FONT_FILE_PATH));
-        titleScreenMenuFontAWT = titleScreenMenuFontAWT.deriveFont(Font.PLAIN, 128);
-        titleScreenMenuFont = new StaticFont(titleScreenMenuFontAWT, true);
+        titleScreenMenuFontAWT = titleScreenMenuFontAWT.deriveFont(Font.PLAIN, 20 * scale);
+        titleScreenMenuFont = new StaticFont(titleScreenMenuFontAWT, false);
     }
 
     public static void resize() {

@@ -14,7 +14,7 @@ import static org.lwjgl.opengl.GL11.*;
  * Created by Trent on 10/24/2014.
  */
 public class PlayableState implements State {
-    public static final String LEVEL_FILE_PATH = "assets/levels/snow-correct.dae";
+    public static final String LEVEL_FILE_PATH = "assets/levels/snow-correct-large.dae";
     public static Level level;
 
     private boolean init;
@@ -35,7 +35,6 @@ public class PlayableState implements State {
 
     @Override
     public void update() {
-        System.out.println(GameTime.getDeltaTime());
         if (!init)
             init();
 

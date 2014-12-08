@@ -17,9 +17,10 @@ import com.requiem.utilities.GraphicsUtils;
 import com.trentwdavies.daeloader.Model;
 import org.lwjgl.opengl.Display;
 
-import static org.lwjgl.opengl.GL11.*;
-
+import java.util.ArrayList;
 import java.util.List;
+
+import static org.lwjgl.opengl.GL11.*;
 
 public class Requiem {
     public static final GameCamera GAME_CAMERA = new GameCamera();
@@ -62,9 +63,6 @@ public class Requiem {
         AssetManager.queue(Player.PLAYER_MODEL_FILE_PATH, Model.class);
         AssetManager.load();
         AssetManager.pauseWhileLoading();
-        //Globals.ASSET_MANAGER.queue("levels/test_1.g3db", Model.class);
-        //Globals.ASSET_MANAGER.queue("levels/titlescreen/snow_1.g3db", Model.class);
-        //Globals.ASSET_MANAGER.queue("levels/tree.g3db", Model.class);
     }
 
     public void init() {

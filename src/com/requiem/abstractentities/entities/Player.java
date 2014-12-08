@@ -2,10 +2,8 @@ package com.requiem.abstractentities.entities;
 
 
 import com.bulletphysics.collision.dispatch.CollisionObject;
-import com.bulletphysics.collision.shapes.BoxShape;
-import com.bulletphysics.collision.shapes.BvhTriangleMeshShape;
-import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.collision.shapes.SphereShape;
+import com.bulletphysics.collision.dispatch.GhostObject;
+import com.bulletphysics.collision.shapes.*;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
@@ -34,9 +32,14 @@ public class Player extends Entity implements Collidable {
     public  Model playerModel;
     public CollisionShape collisionShape;
     public RigidBody rigidBody;
+    public GhostObject ghostObject;//for stair step testing
     public static final float MASS = 2;
     public static final float FRICTION = 0;
-    public static final float RESTITUTION = 0.1f;
+    public static final float RESTITUTION = 0f;
+
+    public static final float HEIGHT = 2;
+    public static final float WIDTH = 1;
+    public static final float CCD_SPHERE_SWEPT_RADIUS = 0.5f;//should fit inside the person
 
     private boolean init;
 
@@ -58,15 +61,15 @@ public class Player extends Entity implements Collidable {
             e.printStackTrace();
         }
 
-        pos = new Point3d(-5, 6, -6);
+        pos = new Point3d(-5, 0, -12);
 
         //collisionShape = new BvhTriangleMeshShape(PhysicsUtils.makeTIVA(playerModel), true);
         //collisionShape = new SphereShape(0.1f);
-        collisionShape = new BoxShape(new Vector3f(0.2f, 1.5f, 0.2f));
+        collisionShape = new CapsuleShape(WIDTH / 2, HEIGHT / 2);
         Vector3f localInertia = new Vector3f(0, 0, 0);
         collisionShape.calculateLocalInertia(MASS, localInertia);
-        System.out.println("creating player rigid body");
         createRigidBody();
+        setPos(pos);
 
         init = true;
     }
@@ -91,7 +94,7 @@ public class Player extends Entity implements Collidable {
     public void render() {
         glPushMatrix();
 
-        glTranslated(pos.x, pos.y - 1.5, pos.z);
+        glTranslated(pos.x, pos.y - HEIGHT / 2, pos.z);
         glRotated(-ang.y, 0, 1, 0);
 
         Batch.renderModel(playerModel);
@@ -103,11 +106,22 @@ public class Player extends Entity implements Collidable {
     public void createRigidBody() {
         Vector3f localInertia = new Vector3f();
         collisionShape.calculateLocalInertia(MASS, localInertia);
-        RigidBodyConstructionInfo constructionInfo = PhysicsUtils.createRigidBodyConstructionInfo(MASS, pos, collisionShape, localInertia);
+        RigidBodyConstructionInfo constructionInfo = PhysicsUtils.createRigidBodyConstructionInfo(MASS, new Point3d(0, 0, 0), collisionShape, localInertia);
         constructionInfo.restitution = RESTITUTION;
         constructionInfo.friction = FRICTION;
         rigidBody = new RigidBody(constructionInfo);
         rigidBody.setActivationState(CollisionObject.DISABLE_DEACTIVATION);
+        rigidBody.setCcdSweptSphereRadius(CCD_SPHERE_SWEPT_RADIUS);
+
+        ghostObject = new GhostObject();
+        ghostObject.setCollisionShape(collisionShape);
+    }
+
+    public void setPos(Point3d pos) {
+        Vector3f vectorPos = new Vector3f((float) pos.x, (float) pos.y + HEIGHT / 2, (float) pos.z);
+        Vector3f curPos = rigidBody.getWorldTransform(new Transform()).origin;
+        vectorPos.sub(curPos);
+        rigidBody.translate(vectorPos);
     }
 
     @Override

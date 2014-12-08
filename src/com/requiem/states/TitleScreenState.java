@@ -8,6 +8,7 @@ import com.requiem.managers.FontManager;
 import com.requiem.managers.SettingsManager;
 import com.requiem.managers.StateManager;
 import com.requiem.utilities.GraphicsUtils;
+import org.lwjgl.opengl.Display;
 
 import javax.vecmath.Point3d;
 
@@ -122,7 +123,6 @@ public class TitleScreenState implements State {
 
             FontManager.titleScreenMenuFont.drawString(menuOptions[i], (int) drawX, (int) drawY);
         }
-        FontManager.titleScreenMenuFont.drawString("ijkl", 100, 200);
 
         //glBlendFunc(GL_ONE, GL_ZERO);
         GraphicsUtils.endOrtho();
@@ -134,13 +134,12 @@ public class TitleScreenState implements State {
         int startX = resolution[0] / 20;
         int startY = resolution[1] / 2;
 
+        double staticHeight = FontManager.titleScreenMenuFont.getStaticFontHeight();
+
         for (int i = 0; i < menuOptions.length; i++) {
             String currentOption = menuOptions[i];
-            //int[] fontBounds = FontManager.getRealBounds(FontManager.titleScreenMenuFont, currentOption);
             xyWidthHeight[i][X] = startX;
-            //xyWidthHeight[i][Y] = startY + FontManager.titleScreenMenuFont.getLineHeight() * i;
-            //xyWidthHeight[i][WIDTH] = fontBounds[0];
-            //xyWidthHeight[i][HEIGHT] = fontBounds[1];
+            xyWidthHeight[i][Y] = (int) (startY + staticHeight * i);
         }
     }
 }

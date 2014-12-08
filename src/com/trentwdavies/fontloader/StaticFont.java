@@ -8,6 +8,8 @@ import static org.lwjgl.opengl.GL11.*;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -59,10 +61,10 @@ public class StaticFont {
                 glVertex2d(x, y);
 
                 glTexCoord2d(bounds[2], bounds[1]);
-                glVertex2d(x + charWidths[curChar], y);
+                glVertex2d(x + charWidth, y);
 
                 glTexCoord2d(bounds[2], bounds[3]);
-                glVertex2d(x + charWidths[curChar], y + charHeight);
+                glVertex2d(x + charWidth, y + charHeight);
 
                 glTexCoord2d(bounds[0], bounds[3]);
                 glVertex2d(x, y + charHeight);
@@ -118,9 +120,9 @@ public class StaticFont {
         int height = getStaticFontHeight();
         imageWidth = GraphicsUtils.nextPowerOfTwo(charWidth * 8);
         columnCount = imageWidth / charWidth;
-        imageHeight = GraphicsUtils.nextPowerOfTwo(characterList.length / columnCount * height);
+        int rowCount = characterList.length / columnCount;
+        imageHeight = GraphicsUtils.nextPowerOfTwo(rowCount * height + height);
 
-        System.out.println(imageWidth + ", " + imageHeight);
         BufferedImage characterImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D g = (Graphics2D) characterImage.getGraphics();
         g.setFont(awtFont);
@@ -134,6 +136,12 @@ public class StaticFont {
             int drawX = rowColumn[1] * charWidth;
             int drawY = rowColumn[0] * height + height - getMaxDescent();
             g.drawString("" + curChar, drawX, drawY);
+        }
+
+        try {
+            ImageIO.write(characterImage, "png", new File("test.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         charactersTexture = new Texture(characterImage, true);

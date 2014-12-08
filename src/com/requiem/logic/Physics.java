@@ -24,7 +24,7 @@ import java.util.List;
  * Created by Trent on 10/27/2014.
  */
 public class Physics {
-    public static final double GRAVITY = 8;
+    public static final double GRAVITY = 32;
     //public static final double ACCEL = 120;
     public static final double ACCEL = 40;
     public static final double MAX_SPEED = 6;
@@ -61,10 +61,14 @@ public class Physics {
             init();
         }
 
+        PlayerManager.PLAYER.rigidBody.activate(true);
+        PlayerManager.PLAYER.rigidBody.setActivationState(CollisionObject.DISABLE_DEACTIVATION);
+        PlayerManager.PLAYER.rigidBody.activate(true);
+
         playerAngles();
         playerMovements();
 
-        dynamicsWorld.stepSimulation(GameTime.getDeltaTime() / 1000f, 10);
+        dynamicsWorld.stepSimulation(GameTime.getDeltaTime() / 1000f, 10, 1f / 60);
 
         cameraPosition();
     }
@@ -120,9 +124,12 @@ public class Physics {
         if (applyVec.lengthSquared() > 0/* && originalSpeedSquaredXZ < MAX_SPEED * MAX_SPEED*/) {
             applyVec.normalize();
             applyVec.scale(ACCEL);
-            Vector3f applyVec3f = new Vector3f((float) applyVec.x, (float) applyVec.y, (float) applyVec.z);
-            player.rigidBody.applyCentralForce(applyVec3f);
         }
+        if (GameInput.keysDeltaDown[Keyboard.KEY_SPACE]) {
+            player.rigidBody.applyCentralImpulse(new Vector3f(0, 40, 0));
+        }
+        Vector3f applyVec3f = new Vector3f((float) applyVec.x, (float) applyVec.y, (float) applyVec.z);
+        player.rigidBody.applyCentralForce(applyVec3f);
     }
 
     private static void cameraPosition() {

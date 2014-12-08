@@ -22,8 +22,8 @@ public class GameCamera extends AbstractEntity {
     public Vector3d vel = new Vector3d();
 
     public static float fieldOfView = 65f;
-    public static float zNear = 0.1f;
-    public static float zFar = 10000f;
+    public static float zNear = 1f;
+    public static float zFar = 1000f;
 
     public void lookAt(Point3d point3d) {
         //TODO can I do this without a square root???

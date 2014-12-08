@@ -24,7 +24,7 @@ public class Level extends Entity implements Collidable {
     public Model levelModel;
     public CollisionShape[] collisionShapes;
     public RigidBody[] rigidBodies;
-    public static final float FRICTION = 1f;
+    public static final float FRICTION = 0.8f;
     public static final float RESTITUTION = 0.1f;
 
     private boolean init;
@@ -38,9 +38,6 @@ public class Level extends Entity implements Collidable {
         levelModel = (Model) AssetManager.getAsset(levelPath);
 
         collisionShapes = PhysicsUtils.getBvhTriangleMeshShapes(levelModel, true);
-        //collisionShape = new BvhTriangleMeshShape(PhysicsUtils.makeTIVA(levelModel), true);
-        //collisionShape = new StaticPlaneShape(new Vector3f(0, 1, 0), 0f);
-        System.out.println("creating level rigid body");
         createRigidBody();
 
         init = true;
