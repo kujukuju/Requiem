@@ -2,6 +2,7 @@ package com.requiem.abstractentities.entities;
 
 
 import com.bulletphysics.collision.dispatch.CollisionObject;
+import com.bulletphysics.collision.dispatch.CollisionWorld;
 import com.bulletphysics.collision.dispatch.GhostObject;
 import com.bulletphysics.collision.shapes.*;
 import com.bulletphysics.dynamics.DynamicsWorld;
@@ -12,6 +13,7 @@ import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
 import com.requiem.interfaces.Collidable;
+import com.requiem.utilities.GameTime;
 import com.requiem.utilities.PhysicsUtils;
 import com.requiem.utilities.renderutilities.Batch;
 import com.trentwdavies.daeloader.ColladaLoader;
@@ -39,6 +41,8 @@ public class Player extends Entity implements Collidable {
 
     public static final float HEIGHT = 2;
     public static final float WIDTH = 1;
+    public static final float MAX_STAIR_HEIGHT = 0.2f;
+    public static final float CCD_MOTION_THRESHOLD = WIDTH / 2;//smallest radius to start doing continuous physics... I think it should be the smallest width of the person
     public static final float CCD_SPHERE_SWEPT_RADIUS = 0.5f;//should fit inside the person
 
     private boolean init;
@@ -61,11 +65,12 @@ public class Player extends Entity implements Collidable {
             e.printStackTrace();
         }
 
-        pos = new Point3d(-5, 0, -12);
+        pos = new Point3d(5.9, 0.111, 4.8);
 
         //collisionShape = new BvhTriangleMeshShape(PhysicsUtils.makeTIVA(playerModel), true);
         //collisionShape = new SphereShape(0.1f);
         collisionShape = new CapsuleShape(WIDTH / 2, HEIGHT / 2);
+        //collisionShape = new CylinderShape(new Vector3f(WIDTH / 2, HEIGHT / 2, WIDTH / 2));
         Vector3f localInertia = new Vector3f(0, 0, 0);
         collisionShape.calculateLocalInertia(MASS, localInertia);
         createRigidBody();
@@ -102,6 +107,46 @@ public class Player extends Entity implements Collidable {
         glPopMatrix();
     }
 
+    /*public boolean checkStairs(float deltaSeconds, Vector3f applyVec) {
+        boolean hitStairs = false;
+
+        Vector3f newApplyVec = new Vector3f(applyVec.x, applyVec.y, applyVec.z);
+        Vector3f newVel = new Vector3f((float) vel.x, (float) vel.y, (float) vel.z);
+        newVel.scale(deltaSeconds * 1f);
+        newApplyVec.scale(deltaSeconds * 1f);
+        newApplyVec.scale(1 / MASS);//F=ma?
+        Vector3f newVelocity = new Vector3f(newVel.x + newApplyVec.x, newVel.y + newApplyVec.y, newVel.z + newApplyVec.z);
+
+        float checkSkip = 0.01f;
+        float checkPos = 0;
+        float maxCheckPos = newVelocity.length();
+        Vector3f curFromPos = new Vector3f();
+        Vector3f curToPos = new Vector3f();
+
+        //the ghost body checks from up to down, going from close to far.
+        //new position is the shortest y distance the ghost object can move > 0
+        while (!hitStairs && checkPos <= maxCheckPos) {
+            float outwardsScale = checkPos / maxCheckPos;
+            curFromPos.x = outwardsScale * newVelocity.x;
+            curFromPos.z = outwardsScale * newVelocity.z;
+            curFromPos.y = (float) pos.y + MAX_STAIR_HEIGHT;
+
+            curToPos.x = curFromPos.x;
+            curToPos.y = (float) pos.y;
+            curToPos.z = curFromPos.z;
+
+            CollisionWorld.RayResultCallback rayResultCallback = new CollisionWorld.ClosestRayResultCallback(new Vector3f(-10, -5, 0), new Vector3f(5.9f, 0.111f, 4.8f));
+            ghostObject.rayTest(new Vector3f(-10, -5, 0), new Vector3f(5.9f, 0.111f, 4.8f), rayResultCallback);
+
+            if (rayResultCallback.hasHit())
+                System.out.println(rayResultCallback.hasHit());
+
+            checkPos += checkSkip;
+        }
+
+        return hitStairs;
+    }*/
+
     @Override
     public void createRigidBody() {
         Vector3f localInertia = new Vector3f();
@@ -111,6 +156,7 @@ public class Player extends Entity implements Collidable {
         constructionInfo.friction = FRICTION;
         rigidBody = new RigidBody(constructionInfo);
         rigidBody.setActivationState(CollisionObject.DISABLE_DEACTIVATION);
+        rigidBody.setCcdMotionThreshold(CCD_MOTION_THRESHOLD);
         rigidBody.setCcdSweptSphereRadius(CCD_SPHERE_SWEPT_RADIUS);
 
         ghostObject = new GhostObject();
@@ -127,5 +173,6 @@ public class Player extends Entity implements Collidable {
     @Override
     public void addToDynamicsWorld(DynamicsWorld dynamicsWorld) {
         dynamicsWorld.addRigidBody(rigidBody);
+        dynamicsWorld.addCollisionObject(ghostObject);
     }
 }

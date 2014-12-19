@@ -148,27 +148,27 @@ public class StaticFont {
     }
 
     static {
-        generateCharacterIndexList();
-    }
-
-    private static void generateCharacterIndexList() {
         try {
-            int maxChar = -1;
-            for (int i = 0; i < characterList.length; i++) {
-                maxChar = Math.max(maxChar, characterList[i]);
-            }
-            characterIndexList = new int[maxChar + 1];
-
-            for (int i = 0; i < characterIndexList.length; i++) {
-                characterIndexList[i] = -1;
-            }
-            for (int i = 0; i < characterList.length; i++) {
-                char curChar = characterList[i];
-                characterIndexList[curChar] = i;
-            }
+            generateCharacterIndexList();
         } catch (Exception e) {
             System.err.println("Error in the StaticFont static init call");
             e.printStackTrace();
+        }
+    }
+
+    private static void generateCharacterIndexList() {
+        int maxChar = -1;
+        for (int i = 0; i < characterList.length; i++) {
+            maxChar = Math.max(maxChar, characterList[i]);
+        }
+        characterIndexList = new int[maxChar + 1];
+
+        for (int i = 0; i < characterIndexList.length; i++) {
+            characterIndexList[i] = -1;
+        }
+        for (int i = 0; i < characterList.length; i++) {
+            char curChar = characterList[i];
+            characterIndexList[curChar] = i;
         }
     }
 }

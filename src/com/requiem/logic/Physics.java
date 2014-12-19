@@ -2,7 +2,6 @@ package com.requiem.logic;
 
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
-import com.bulletphysics.dynamics.DynamicsWorld;
 import com.requiem.Requiem;
 import com.requiem.abstractentities.entities.Level;
 import com.requiem.abstractentities.entities.Player;
@@ -17,7 +16,6 @@ import org.lwjgl.input.Mouse;
 
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
-import java.util.Dictionary;
 import java.util.List;
 
 /**
@@ -25,8 +23,9 @@ import java.util.List;
  */
 public class Physics {
     public static final double GRAVITY = 32;
-    //public static final double ACCEL = 120;
-    public static final double ACCEL = 40;
+    public static final double ACCEL = 160;
+    public static final double FRICTION = 80;
+    public static final double DRAG = 10;//if not on the ground
     public static final double MAX_SPEED = 6;
 
     public static final double TOLERANCE = 0.00001;
@@ -66,9 +65,12 @@ public class Physics {
         PlayerManager.PLAYER.rigidBody.activate(true);
 
         playerAngles();
-        playerMovements();
+        playerXZMovements();
+        playerFrictionMovements();
+        playerJumpMovements();
+        playerDragMovements();
 
-        dynamicsWorld.stepSimulation(GameTime.getDeltaTime() / 1000f, 10, 1f / 60);
+        dynamicsWorld.stepSimulation(GameTime.getDeltaSeconds(), 10, 1f / 60);
 
         cameraPosition();
     }
@@ -99,37 +101,87 @@ public class Physics {
     }
 
     //TODO need to do air friction if youre going faster than max speed
-    private static void playerMovements() {
+    private static void playerXZMovements() {
         Player player = PlayerManager.PLAYER;
-        //Transform playerTransform = new Transform();
-        //player.rigidBody.getMotionState().getWorldTransform(playerTransform);
 
         double yawRadians = Math.toRadians(player.ang.y);
         double originalSpeedSquaredXZ = new Vector3d(player.vel.x, 0, player.vel.z).lengthSquared();
 
-        Vector3d applyVec = new Vector3d();
+        Vector3d appliedForce = new Vector3d();
         if (GameInput.keysDown[Keyboard.KEY_W]) {
-            applyVec.add(new Vector3d(Math.sin(yawRadians), 0, -Math.cos(yawRadians)));
+            appliedForce.add(new Vector3d(Math.sin(yawRadians), 0, -Math.cos(yawRadians)));
         }
         if (GameInput.keysDown[Keyboard.KEY_S]) {
-            applyVec.add(new Vector3d(-Math.sin(yawRadians), 0, Math.cos(yawRadians)));
+            appliedForce.add(new Vector3d(-Math.sin(yawRadians), 0, Math.cos(yawRadians)));
         }
 
         if (GameInput.keysDown[Keyboard.KEY_D]) {
-            applyVec.add(new Vector3d(Math.sin(yawRadians + Math.PI / 2), 0, -Math.cos(yawRadians + Math.PI / 2)));
+            appliedForce.add(new Vector3d(Math.sin(yawRadians + Math.PI / 2), 0, -Math.cos(yawRadians + Math.PI / 2)));
         }
         if (GameInput.keysDown[Keyboard.KEY_A]) {
-            applyVec.add(new Vector3d(-Math.sin(yawRadians + Math.PI / 2), 0, Math.cos(yawRadians + Math.PI / 2)));
+            appliedForce.add(new Vector3d(-Math.sin(yawRadians + Math.PI / 2), 0, Math.cos(yawRadians + Math.PI / 2)));
         }
-        if (applyVec.lengthSquared() > 0/* && originalSpeedSquaredXZ < MAX_SPEED * MAX_SPEED*/) {
-            applyVec.normalize();
-            applyVec.scale(ACCEL);
+        if (appliedForce.lengthSquared() > 0) {
+            appliedForce.normalize();
+            appliedForce.scale(ACCEL);
         }
+
+        Vector3d appliedForceToVel = (Vector3d) appliedForce.clone();
+        appliedForceToVel.scale(1 / (Player.MASS * 60));
+
+        Vector3d finalVel = new Vector3d(player.vel.x, 0, player.vel.z);
+        finalVel.add(appliedForceToVel);
+        if (originalSpeedSquaredXZ - TOLERANCE < MAX_SPEED * MAX_SPEED && finalVel.lengthSquared() > MAX_SPEED * MAX_SPEED) {
+            finalVel.normalize();
+            finalVel.scale(MAX_SPEED);
+        } else if (finalVel.lengthSquared() > MAX_SPEED * MAX_SPEED) {
+            finalVel.normalize();
+            finalVel.scale(Math.sqrt(originalSpeedSquaredXZ));
+        }
+
+        Vector3d finalVelMinusOldVelForce = (Vector3d) finalVel.clone();
+        finalVelMinusOldVelForce.sub(new Vector3d(player.vel.x, 0, player.vel.z));
+        finalVelMinusOldVelForce.scale(Player.MASS * 60);
+
+        player.rigidBody.applyCentralForce(new Vector3f(finalVelMinusOldVelForce));
+
+        player.vel = finalVel;
+    }
+
+    private static void playerFrictionMovements() {
+        Player player = PlayerManager.PLAYER;
+
+        //TODO might need to set the velocity to zero if its near zero
+
+        Vector3d playerVelXZ = new Vector3d(player.vel.x, 0, player.vel.z);
+        if (playerVelXZ.lengthSquared() > 0) {//TODO and if on ground
+            Vector3d frictionForce = new Vector3d(-player.vel.x, 0, -player.vel.z);
+            frictionForce.normalize();
+            frictionForce.scale(FRICTION);
+
+            Vector3d frictionForceToVel = (Vector3d) frictionForce.clone();
+            frictionForceToVel.scale(1 / (Player.MASS * 60));
+
+            Vector3d applyForce = new Vector3d(frictionForce);
+            if (frictionForceToVel.lengthSquared() > player.vel.lengthSquared()) {
+                applyForce = new Vector3d(-player.vel.x, 0, -player.vel.z);
+                applyForce.scale(Player.MASS * 60);
+            }
+
+            player.rigidBody.applyCentralForce(new Vector3f(applyForce));
+        }
+    }
+
+    private static void playerJumpMovements() {
+        Player player = PlayerManager.PLAYER;
+
         if (GameInput.keysDeltaDown[Keyboard.KEY_SPACE]) {
             player.rigidBody.applyCentralImpulse(new Vector3f(0, 40, 0));
         }
-        Vector3f applyVec3f = new Vector3f((float) applyVec.x, (float) applyVec.y, (float) applyVec.z);
-        player.rigidBody.applyCentralForce(applyVec3f);
+    }
+
+    private static void playerDragMovements() {
+        //if not on ground (but it is by default for now)
     }
 
     private static void cameraPosition() {

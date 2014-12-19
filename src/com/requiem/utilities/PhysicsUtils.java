@@ -93,7 +93,6 @@ public class PhysicsUtils {
 
     public static BvhTriangleMeshShape[] getBvhTriangleMeshShapes(Model model, boolean useQuantizedAabbCompression) {
         List<Geometry> geometryList = model.geometryList;
-        System.out.println("WHAT: " + geometryList.size());
         BvhTriangleMeshShape[] bvhTriangleMeshShapeArray = new BvhTriangleMeshShape[geometryList.size()];
 
         for (int i = 0; i < geometryList.size(); i++) {

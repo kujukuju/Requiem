@@ -13,6 +13,8 @@ import com.requiem.utilities.renderutilities.Batch;
 import com.requiem.utilities.AssetManager;
 import com.trentwdavies.daeloader.Model;
 
+import javax.vecmath.Vector3f;
+
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.glPopMatrix;
 

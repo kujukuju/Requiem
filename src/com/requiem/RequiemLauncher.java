@@ -15,6 +15,7 @@ public class RequiemLauncher {
         int height = (int) (1080 * 0.6);
         try {
             Display.setDisplayMode(new DisplayMode(width, height));
+            Display.setVSyncEnabled(true);
             Display.create(new PixelFormat(8, 8, 0, 8));
         } catch (LWJGLException e) {
             e.printStackTrace();

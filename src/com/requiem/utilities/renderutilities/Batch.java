@@ -1,11 +1,6 @@
 package com.requiem.utilities.renderutilities;
 
-import com.requiem.utilities.PhysicsUtils;
 import com.trentwdavies.daeloader.*;
-import com.trentwdavies.daeloader.physics.PhysicsFace;
-import com.trentwdavies.daeloader.physics.PhysicsGeometry;
-import com.trentwdavies.daeloader.physics.PhysicsGeometryObject;
-import com.trentwdavies.daeloader.physics.PhysicsModel;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;

@@ -24,4 +24,8 @@ public class GameTime {
     public static int getDeltaTime() {
         return deltaTime;
     }
+
+    public static float getDeltaSeconds() {
+        return deltaTime / 1000f;
+    }
 }
