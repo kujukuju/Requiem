@@ -37,7 +37,7 @@ public class Player extends Entity implements Collidable {
     public GhostObject ghostObject;//for stair step testing
     public static final float MASS = 2;
     public static final float FRICTION = 0;
-    public static final float RESTITUTION = 0f;
+    public static final float RESTITUTION = 0.15f;
 
     public static final float HEIGHT = 2;
     public static final float WIDTH = 1;

@@ -152,7 +152,6 @@ public class Physics {
         Player player = PlayerManager.PLAYER;
 
         //TODO might need to set the velocity to zero if its near zero
-
         Vector3d playerVelXZ = new Vector3d(player.vel.x, 0, player.vel.z);
         if (playerVelXZ.lengthSquared() > 0) {//TODO and if on ground
             Vector3d frictionForce = new Vector3d(-player.vel.x, 0, -player.vel.z);

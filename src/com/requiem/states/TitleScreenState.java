@@ -97,6 +97,13 @@ public class TitleScreenState implements State {
         glRotated(-Requiem.GAME_CAMERA.ang.z, 0, 0, 1);
         glTranslated(-Requiem.GAME_CAMERA.pos.x, -Requiem.GAME_CAMERA.pos.y, -Requiem.GAME_CAMERA.pos.z);
 
+        float[] pos = {-20, 20, -14, 1};
+        glLight(GL_LIGHT0, GL_POSITION, GraphicsUtils.flippedFloatBuffer(pos));
+        float[] diff = {1f, 1f, 1f, 1};
+        glLight(GL_LIGHT0, GL_DIFFUSE, GraphicsUtils.flippedFloatBuffer(diff));
+        float[] amb = {0.05f, 0.05f, 0.05f, 1};
+        glLight(GL_LIGHT0, GL_AMBIENT, GraphicsUtils.flippedFloatBuffer(amb));
+
         level.render();
 
         glPopMatrix();

@@ -130,8 +130,6 @@ public class ColladaLoader {
         NodeList effectNodeList = libraryEffectsElement.getElementsByTagName("effect");
 
         for (int i = 0; i < effectNodeList.getLength(); i++) {
-            Effect curEffect = new Effect();
-
             Node curEffectNode = effectNodeList.item(i);
             Element curEffectElement = (Element) curEffectNode;
 
@@ -143,9 +141,21 @@ public class ColladaLoader {
             Node techniqueNode = profileCommonElement.getElementsByTagName("technique").item(0);
             Element techniqueElement = (Element) techniqueNode;
 
-            Node phongNode = techniqueElement.getElementsByTagName("phong").item(0);
-            Element phongElement = (Element) phongNode;
+            Effect curEffect = getEffect(techniqueElement);
 
+            effectIdEffectMap.put(curEffectId, curEffect);
+        }
+
+        return effectIdEffectMap;
+    }
+
+    private static Effect getEffect(Element techniqueElement) {
+        Effect curEffect = new Effect();
+
+        Node phongNode = techniqueElement.getElementsByTagName("phong").item(0);
+        Node lambertNode = techniqueElement.getElementsByTagName("lambert").item(0);
+        if (phongNode != null) {
+            Element phongElement = (Element) phongNode;
 
             Node emissionNode = phongElement.getElementsByTagName("emission").item(0);
             double[] emissionData = getEffectValueArray(emissionNode);
@@ -176,11 +186,37 @@ public class ColladaLoader {
                 double transparencyData = Double.parseDouble(transparencyDataNode.getTextContent());
                 curEffect.setTransparency(transparencyData);
             }
+        } else if (lambertNode != null) {
+            Element lambertElement = (Element) lambertNode;
 
-            effectIdEffectMap.put(curEffectId, curEffect);
+            Node emissionNode = lambertElement.getElementsByTagName("emission").item(0);
+            double[] emissionData = getEffectValueArray(emissionNode);
+            curEffect.setEmission(emissionData);
+
+            Node ambientNode = lambertElement.getElementsByTagName("ambient").item(0);
+            double[] ambientData = getEffectValueArray(ambientNode);
+            curEffect.setAmbient(ambientData);
+
+            Node diffuseNode = lambertElement.getElementsByTagName("diffuse").item(0);
+            double[] diffuseData = getEffectValueArray(diffuseNode);
+            curEffect.setDiffuse(diffuseData);
+
+            double[] specularData = {1, 1, 1, 1};
+            curEffect.setSpecular(specularData);
+            curEffect.setShininess(0);
+
+            Node transparencyNode = lambertElement.getElementsByTagName("transparency").item(0);
+            if (transparencyNode != null) {
+                Element transparencyElement = (Element) transparencyNode;
+                Node transparencyDataNode = transparencyElement.getElementsByTagName("float").item(0);
+                double transparencyData = Double.parseDouble(transparencyDataNode.getTextContent());
+                curEffect.setTransparency(transparencyData);
+            }
+        } else {
+            throw new RuntimeException("No Shading Exists");
         }
 
-        return effectIdEffectMap;
+        return curEffect;
     }
 
     private static double[] getEffectValueArray(Node effectPartNode) {

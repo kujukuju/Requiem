@@ -82,14 +82,7 @@ public class Requiem {
         glEnable(GL_LIGHTING);
         glEnable(GL_LIGHT0);
 
-        glEnable(GL_NORMALIZE);
-
-        float[] pos = {-20, 20, -14, 1};
-        glLight(GL_LIGHT0, GL_POSITION, GraphicsUtils.flippedFloatBuffer(pos));
-        float[] diff = {1f, 1f, 1f, 1};
-        glLight(GL_LIGHT0, GL_DIFFUSE, GraphicsUtils.flippedFloatBuffer(diff));
-        float[] amb = {0.05f, 0.05f, 0.05f, 1};
-        glLight(GL_LIGHT0, GL_AMBIENT, GraphicsUtils.flippedFloatBuffer(amb));
+        //glEnable(GL_NORMALIZE);
 
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
@@ -115,7 +108,7 @@ public class Requiem {
 
             return;
         }*/
-
+long physicsStartTime = System.currentTimeMillis();
         updateStatics();
 
         //get the states before you update and render, because in an update call the state would change then it would render the new state before it updated
@@ -123,7 +116,10 @@ public class Requiem {
         State currentState = StateManager.getCurrentState();
 
         update(currentState);
+        System.out.println("physics time: " + (System.currentTimeMillis() - physicsStartTime));
+        long renderStartTime = System.currentTimeMillis();
         currentState.render();
+        System.out.println("render time: " + (System.currentTimeMillis() - renderStartTime));
     }
 
     public void updateStatics() {
