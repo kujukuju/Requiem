@@ -56,4 +56,14 @@ public class LoadingScreenState implements State {
 
         batch.end();*/
     }
+
+    @Override
+    public String getModelPath() {
+        return null;
+    }
+
+    @Override
+    public void setModelPath(String path) {
+
+    }
 }

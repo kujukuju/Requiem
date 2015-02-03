@@ -1,14 +1,13 @@
 package com.requiem.states;
 
 import com.requiem.Requiem;
-import com.requiem.abstractentities.entities.Level;
+import com.requiem.Level;
 import com.requiem.interfaces.State;
 import com.requiem.listeners.GameInput;
 import com.requiem.managers.FontManager;
 import com.requiem.managers.SettingsManager;
 import com.requiem.managers.StateManager;
 import com.requiem.utilities.GraphicsUtils;
-import org.lwjgl.opengl.Display;
 
 import javax.vecmath.Point3d;
 
@@ -109,6 +108,16 @@ public class TitleScreenState implements State {
         glPopMatrix();
 
         renderOrthographic();
+    }
+
+    @Override
+    public String getModelPath() {
+        return LEVEL_FILE_PATH;
+    }
+
+    @Override
+    public void setModelPath(String path) {
+        //final
     }
 
     public void renderOrthographic() {

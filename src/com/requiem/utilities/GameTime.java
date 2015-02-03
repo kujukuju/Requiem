@@ -25,6 +25,10 @@ public class GameTime {
         return deltaTime;
     }
 
+    public static long getCurrentMillis() {
+        return currentTime;
+    }
+
     public static float getDeltaSeconds() {
         return deltaTime / 1000f;
     }

@@ -1,11 +1,14 @@
 package com.requiem.states;
 
 import com.requiem.Requiem;
-import com.requiem.abstractentities.entities.Level;
+import com.requiem.abstractentities.entities.enemies.Enemy;
+import com.requiem.Level;
+import com.requiem.abstractentities.entities.enemies.CuteCrab;
+import com.requiem.abstractentities.pathfinding.PathLevel;
 import com.requiem.interfaces.State;
 import com.requiem.logic.Physics;
+import com.requiem.managers.EnemyManager;
 import com.requiem.managers.PlayerManager;
-import com.requiem.utilities.GameTime;
 import com.requiem.utilities.GraphicsUtils;
 import org.lwjgl.input.Mouse;
 
@@ -15,8 +18,10 @@ import static org.lwjgl.opengl.GL11.*;
  * Created by Trent on 10/24/2014.
  */
 public class PlayableState implements State {
-    public static final String LEVEL_FILE_PATH = "assets/levels/pathfinding/pathtest.dae";
+    public static final String MODEL_PATH = "assets/levels/stadium.dae";
+    public static final String PATH_MODEL_PATH = "assets/levels/stadium.dae";
     public static Level level;
+    public static PathLevel pathLevel;
 
     private boolean init;
 
@@ -24,8 +29,18 @@ public class PlayableState implements State {
     public void init() {
         Mouse.setGrabbed(true);
 
-        changeLevel(new Level(LEVEL_FILE_PATH));
+        changeLevel(new Level(MODEL_PATH));
+        changePathLevel(new PathLevel(PATH_MODEL_PATH));
         Physics.setCurrentLevel(level);
+
+        EnemyManager.enemyList.add(new CuteCrab());
+
+        PlayerManager.PLAYER.init();
+        for (Enemy enemy : EnemyManager.enemyList) {
+            enemy.init();
+        }
+
+        level.init();
 
         init = true;
     }
@@ -34,13 +49,19 @@ public class PlayableState implements State {
         this.level = newLevel;
     }
 
+    public void changePathLevel(PathLevel newPathlevel) {
+        this.pathLevel = newPathlevel;
+    }
+
     @Override
     public void update() {
         if (!init)
             init();
 
-        level.update();
         PlayerManager.PLAYER.update();
+        for (Enemy enemy : EnemyManager.enemyList) {
+            enemy.update();
+        }
 
         Physics.update();
     }
@@ -63,7 +84,20 @@ public class PlayableState implements State {
 
         level.render();
         PlayerManager.PLAYER.render();
+        for (Enemy enemy : EnemyManager.enemyList) {
+            enemy.render();
+        }
 
         glPopMatrix();
+    }
+
+    @Override
+    public String getModelPath() {
+        return MODEL_PATH;
+    }
+
+    @Override
+    public void setModelPath(String path) {
+        //final
     }
 }

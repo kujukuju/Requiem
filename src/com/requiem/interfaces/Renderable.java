@@ -5,4 +5,7 @@ package com.requiem.interfaces;
  */
 public interface Renderable {
     public void render();
+
+    public String getModelPath();
+    public void setModelPath(String path);
 }

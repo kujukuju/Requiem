@@ -15,4 +15,14 @@ public class ActionBar implements Overlay {
     public void render() {
 
     }
+
+    @Override
+    public String getModelPath() {
+        return null;
+    }
+
+    @Override
+    public void setModelPath(String path) {
+
+    }
 }

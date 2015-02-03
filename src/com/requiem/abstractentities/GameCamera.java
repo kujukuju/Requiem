@@ -8,37 +8,53 @@ import com.requiem.managers.SettingsManager;
 import org.lwjgl.util.glu.GLU;
 
 import javax.vecmath.Point3d;
+import javax.vecmath.Point3f;
 import javax.vecmath.Vector3d;
+import javax.vecmath.Vector3f;
 
 import static org.lwjgl.opengl.GL11.*;
 
 /**
  * Created by Trent on 10/24/2014.
  */
-public class GameCamera extends AbstractEntity {
-    public Point3d pos = new Point3d();
-    public Point3d targetPos = new Point3d();
-    public Vector3d ang = new Vector3d();
-    public Vector3d vel = new Vector3d();
+public class GameCamera implements AbstractEntity {
+    public Point3f pos;
+    public Point3f targetPos;
+    public Vector3f ang;
+    public Vector3f vel;
 
     public static float fieldOfView = 65f;
     public static float zNear = 1f;
     public static float zFar = 1000f;
 
-    public void lookAt(Point3d point3d) {
+    @Override
+    public void init() {
+        pos = new Point3f();
+        targetPos = new Point3f();
+        ang = new Vector3f();
+        vel = new Vector3f();
+    }
+
+    @Override
+    public void update() {
+
+    }
+
+    public void lookAt(Point3f point3f) {
         //TODO can I do this without a square root???
-        double xDist = point3d.x - pos.x;
-        double yDist = point3d.y - pos.y;
-        double zDist = point3d.z - pos.z;
+        //TODO use mathutils angle thing
+        double xDist = point3f.x - pos.x;
+        double yDist = point3f.y - pos.y;
+        double zDist = point3f.z - pos.z;
 
         double xzPlaneDist = Math.sqrt(xDist * xDist + zDist * zDist);
 
-        ang.x = Math.toDegrees(Math.atan2(yDist, xzPlaneDist));
-        ang.y = Math.toDegrees(Math.atan2(-xDist, -zDist));
+        ang.x = (float) Math.toDegrees(Math.atan2(yDist, xzPlaneDist));
+        ang.y = (float) Math.toDegrees(Math.atan2(-xDist, -zDist));
     }
 
-    public void lookAt(double x, double y, double z) {
-        lookAt(new Point3d(x, y, z));
+    public void lookAt(float x, float y, float z) {
+        lookAt(new Point3f(x, y, z));
     }
 
     public static void recalculatePerspective() {
@@ -52,7 +68,32 @@ public class GameCamera extends AbstractEntity {
     }
 
     @Override
-    public void update() {
+    public Point3f getPos() {
+        return pos;
+    }
 
+    @Override
+    public void setPos(Point3f pos) {
+        this.pos = pos;
+    }
+
+    @Override
+    public Vector3f getVel() {
+        return vel;
+    }
+
+    @Override
+    public void setVel(Vector3f vel) {
+        this.vel = vel;
+    }
+
+    @Override
+    public Vector3f getAng() {
+        return ang;
+    }
+
+    @Override
+    public void setAng(Vector3f ang) {
+        this.ang = ang;
     }
 }

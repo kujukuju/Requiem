@@ -352,8 +352,9 @@ public class ColladaLoader {
         returnGeometryObject.setMaterialReference(materialReferenceId);
 
         //TODO these better always be in this order
-        boolean normalsExist = false;
-        boolean colorsExist = false;
+        boolean normalsExists = false;
+        boolean colorsExists = false;
+        boolean texCoordExists = false;
         NodeList inputNodeList = polylistElement.getElementsByTagName("input");
         for (int b = 0; b < inputNodeList.getLength(); b++) {
             Node curInputNode = inputNodeList.item(b);
@@ -361,9 +362,11 @@ public class ColladaLoader {
 
             String curInputSemantic = curInputElement.getAttribute("semantic");
             if (curInputSemantic.equals("NORMAL")) {
-                normalsExist = true;
+                normalsExists = true;
             } else if (curInputSemantic.equals("COLOR")) {
-                colorsExist = true;
+                colorsExists = true;
+            } else if (curInputSemantic.equals("TEXCOORD")) {
+                texCoordExists = true;
             }
         }
 
@@ -391,15 +394,19 @@ public class ColladaLoader {
                 returnFace.addVertexPointer(vertexIndexPosition);
                 curPIndex++;
 
-                if (normalsExist) {
+                if (normalsExists) {
                     int normalIndexPosition = pIntegerData[curPIndex];
                     returnFace.addNormalPointer(normalIndexPosition);
                     curPIndex++;
                 }
 
-                if (colorsExist) {
+                if (colorsExists) {
                     int colorIndexPosition = pIntegerData[curPIndex];
                     returnFace.addColorPointer(colorIndexPosition);
+                    curPIndex++;
+                }
+
+                if (texCoordExists) {
                     curPIndex++;
                 }
             }

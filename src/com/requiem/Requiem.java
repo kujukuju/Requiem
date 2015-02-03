@@ -2,9 +2,8 @@ package com.requiem;
 
 import com.requiem.abstractentities.GameCamera;
 import com.requiem.abstractentities.entities.Player;
-import com.requiem.interfaces.Renderable;
+import com.requiem.abstractentities.entities.enemies.CuteCrab;
 import com.requiem.interfaces.State;
-import com.requiem.interfaces.Updateable;
 import com.requiem.listeners.GameInput;
 import com.requiem.managers.FontManager;
 import com.requiem.managers.SettingsManager;
@@ -13,12 +12,8 @@ import com.requiem.states.PlayableState;
 import com.requiem.states.TitleScreenState;
 import com.requiem.utilities.AssetManager;
 import com.requiem.utilities.GameTime;
-import com.requiem.utilities.GraphicsUtils;
 import com.trentwdavies.daeloader.Model;
 import org.lwjgl.opengl.Display;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -59,8 +54,10 @@ public class Requiem {
 
     public void loadStuff() {
         AssetManager.queue(TitleScreenState.LEVEL_FILE_PATH, Model.class);
-        AssetManager.queue(PlayableState.LEVEL_FILE_PATH, Model.class);
-        AssetManager.queue(Player.PLAYER_MODEL_FILE_PATH, Model.class);
+        AssetManager.queue(PlayableState.MODEL_PATH, Model.class);
+        AssetManager.queue(PlayableState.PATH_MODEL_PATH, Model.class);
+        AssetManager.queue(Player.MODEL_PATH, Model.class);
+        AssetManager.queue(CuteCrab.MODEL_PATH, Model.class);
         AssetManager.load();
         AssetManager.pauseWhileLoading();
     }
@@ -89,7 +86,7 @@ public class Requiem {
         glEnable(GL_COLOR_MATERIAL);
         glColorMaterial(GL_FRONT, GL_DIFFUSE);
 
-
+        GAME_CAMERA.init();
         FontManager.init();
     }
 
@@ -108,7 +105,7 @@ public class Requiem {
 
             return;
         }*/
-long physicsStartTime = System.currentTimeMillis();
+
         updateStatics();
 
         //get the states before you update and render, because in an update call the state would change then it would render the new state before it updated
@@ -116,10 +113,7 @@ long physicsStartTime = System.currentTimeMillis();
         State currentState = StateManager.getCurrentState();
 
         update(currentState);
-        System.out.println("physics time: " + (System.currentTimeMillis() - physicsStartTime));
-        long renderStartTime = System.currentTimeMillis();
         currentState.render();
-        System.out.println("render time: " + (System.currentTimeMillis() - renderStartTime));
     }
 
     public void updateStatics() {

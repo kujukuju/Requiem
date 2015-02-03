@@ -27,6 +27,8 @@ public class Batch {
 
                             if (curEffect != null) {
                                 glColor4d(curEffect.diffuse[0], curEffect.diffuse[1], curEffect.diffuse[2], curEffect.transparency);
+                            } else {
+                                glColor4d(1, 1, 1, 1);
                             }
 
                             if (curFace.hasNormals()) {
