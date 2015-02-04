@@ -6,11 +6,15 @@ import com.requiem.Level;
 import com.requiem.abstractentities.entities.enemies.CuteCrab;
 import com.requiem.abstractentities.pathfinding.PathLevel;
 import com.requiem.interfaces.State;
+import com.requiem.logic.AIProcessor;
 import com.requiem.logic.Physics;
 import com.requiem.managers.EnemyManager;
 import com.requiem.managers.PlayerManager;
 import com.requiem.utilities.GraphicsUtils;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.util.glu.Sphere;
+
+import javax.vecmath.Point3f;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -18,8 +22,8 @@ import static org.lwjgl.opengl.GL11.*;
  * Created by Trent on 10/24/2014.
  */
 public class PlayableState implements State {
-    public static final String MODEL_PATH = "assets/levels/stadium.dae";
-    public static final String PATH_MODEL_PATH = "assets/levels/stadium.dae";
+    public static final String MODEL_PATH = "assets/levels/pathfinding/pathtest.dae";
+    public static final String PATH_MODEL_PATH = "assets/levels/pathfinding/pathtest-path.dae";
     public static Level level;
     public static PathLevel pathLevel;
 
@@ -29,9 +33,8 @@ public class PlayableState implements State {
     public void init() {
         Mouse.setGrabbed(true);
 
-        changeLevel(new Level(MODEL_PATH));
-        changePathLevel(new PathLevel(PATH_MODEL_PATH));
-        Physics.setCurrentLevel(level);
+        changeLevel(new Level(MODEL_PATH), new PathLevel(PATH_MODEL_PATH));
+        Physics.updateCurrentLevel();
 
         EnemyManager.enemyList.add(new CuteCrab());
 
@@ -45,12 +48,9 @@ public class PlayableState implements State {
         init = true;
     }
 
-    public void changeLevel(Level newLevel) {
+    public void changeLevel(Level newLevel, PathLevel newPathLevel) {
         this.level = newLevel;
-    }
-
-    public void changePathLevel(PathLevel newPathlevel) {
-        this.pathLevel = newPathlevel;
+        this.pathLevel = newPathLevel;
     }
 
     @Override
@@ -86,6 +86,23 @@ public class PlayableState implements State {
         PlayerManager.PLAYER.render();
         for (Enemy enemy : EnemyManager.enemyList) {
             enemy.render();
+        }
+
+        glLineWidth(0.2f);
+        glColor4f(1, 0, 0, 1);
+        if (AIProcessor.spherePoints.size() > 0) {
+            glBegin(GL_LINES);
+            glVertex3f(EnemyManager.enemyList.get(0).getPos().x, EnemyManager.enemyList.get(0).getPos().y, EnemyManager.enemyList.get(0).getPos().z);
+            glVertex3f(AIProcessor.spherePoints.get(0).x, AIProcessor.spherePoints.get(0).y, AIProcessor.spherePoints.get(0).z);
+            glEnd();
+        }
+        for (int i = 0; i < AIProcessor.spherePoints.size() - 1; i++) {
+            Point3f point1 = AIProcessor.spherePoints.get(i);
+            Point3f point2 = AIProcessor.spherePoints.get(i + 1);
+            glBegin(GL_LINES);
+            glVertex3f(point1.x, point1.y, point1.z);
+            glVertex3f(point2.x, point2.y, point2.z);
+            glEnd();
         }
 
         glPopMatrix();

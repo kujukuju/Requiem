@@ -1,9 +1,12 @@
 package com.requiem.interfaces;
 
+import com.requiem.abstractentities.entities.Entity;
+
 /**
  * Created by Trent on 2/2/2015.
  */
-public interface Moveable {
+//a moveable is an entity that can move in the dynamics world
+public interface Moveable extends Entity {
     public float getMass();
     public void setMass(float mass);
 
@@ -15,4 +18,10 @@ public interface Moveable {
 
     public float getFriction();
     public void setFriction(float friction);
+
+    public float getMaxSteepness();
+    public void setMaxSteepness(float maxSteepness);
+
+    public float getMaxJumpHeight();
+    public void setMaxJumpHeight(float maxJumpHeight);
 }

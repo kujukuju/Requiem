@@ -21,7 +21,7 @@ import static org.lwjgl.opengl.GL11.*;
 /**
  * Created by Trent on 10/24/2014.
  */
-public class Player implements Entity, Collidable, Moveable {
+public class Player implements Collidable, Moveable {
     public static final String MODEL_PATH = "assets/models/test-character.dae";
 
     private Model model;
@@ -37,11 +37,13 @@ public class Player implements Entity, Collidable, Moveable {
     private static final float ACCEL = 160;
     private static final float FRICTION = 80;
     private static final float RESTITUTION = 0.15f;
+    private static final float MAX_STEEPNESS = (float) (Math.PI * 40 / 180);
+    private static final float MAX_JUMP_HEIGHT = 2;//TODO calculate impulse force on space bar press using this
 
-    private static final float WIDTH = 0.8f;
-    private static final float HEIGHT = 0.5f;
-    private static final float CCD_MOTION_THRESHOLD = WIDTH / 2;//smallest radius to start doing continuous physics... I think it should be the smallest width of the person
-    private static final float CCD_SPHERE_SWEPT_RADIUS = 0.5f;//should fit inside the person
+    private static final float WIDTH = 1f;
+    private static final float HEIGHT = 2f;
+    private static final float CCD_MOTION_THRESHOLD = Math.min(WIDTH, HEIGHT) / 2;//smallest radius to start doing continuous physics... I think it should be the smallest width of the person
+    private static final float CCD_SPHERE_SWEPT_RADIUS = Math.min(WIDTH, HEIGHT) / 2;//should fit inside the person
 
     @Override
     public void init() {
@@ -50,7 +52,10 @@ public class Player implements Entity, Collidable, Moveable {
         ang = new Vector3f();
         model = (Model) AssetManager.getAsset(MODEL_PATH);
 
-        collisionShape = new CapsuleShape(WIDTH / 2, HEIGHT / 2);
+        float radius = Math.min(WIDTH, HEIGHT) / 2;
+        float height = Math.max(0, HEIGHT - radius * 2);
+        collisionShape = new CapsuleShape(radius, height);
+
         Vector3f localInertia = new Vector3f(0, 0, 0);
         collisionShape.calculateLocalInertia(MASS, localInertia);
         createRigidBody();
@@ -101,6 +106,26 @@ public class Player implements Entity, Collidable, Moveable {
 
     @Override
     public void setModelPath(String path) {
+        //final
+    }
+
+    @Override
+    public float getMaxSteepness() {
+        return MAX_STEEPNESS;
+    }
+
+    @Override
+    public void setMaxSteepness(float maxSteepness) {
+        //final
+    }
+
+    @Override
+    public float getMaxJumpHeight() {
+        return MAX_JUMP_HEIGHT;
+    }
+
+    @Override
+    public void setMaxJumpHeight(float maxJumpHeight) {
         //final
     }
 
@@ -206,90 +231,4 @@ public class Player implements Entity, Collidable, Moveable {
     public void setFriction(float friction) {
         //final
     }
-
-    /*
-    public Model playerModel;
-    public CollisionShape collisionShape;
-    public RigidBody rigidBody;
-    public static final float MASS = 2;
-    public static final float FRICTION = 0;
-    public static final float RESTITUTION = 0.15f;
-
-    public static final float HEIGHT = 2;
-    public static final float WIDTH = 1;
-    public static final float CCD_MOTION_THRESHOLD = WIDTH / 2;//smallest radius to start doing continuous physics... I think it should be the smallest width of the person
-    public static final float CCD_SPHERE_SWEPT_RADIUS = 0.5f;//should fit inside the person
-
-    public Player() {
-
-    }
-
-    @Override
-    public void init() {
-        playerModel = (Model) AssetManager.getAsset(PLAYER_MODEL_FILE_PATH);
-
-        pos = new Point3d(5.9, 0.111, 4.8);
-
-        collisionShape = new CapsuleShape(WIDTH / 2, HEIGHT / 2);
-        Vector3f localInertia = new Vector3f(0, 0, 0);
-        collisionShape.calculateLocalInertia(MASS, localInertia);
-        createRigidBody();
-        setPos(pos);
-
-        init = true;
-    }
-
-    @Override
-    public void update() {
-        if (!init)
-            init();
-
-        Vector3f newPos = rigidBody.getWorldTransform(new Transform()).origin;
-        Vector3f newVel = new Vector3f();
-        rigidBody.getLinearVelocity(newVel);
-        pos.x = newPos.x;
-        pos.y = newPos.y;
-        pos.z = newPos.z;
-        vel.x = newVel.x;
-        vel.y = newVel.y;
-        vel.z = newVel.z;
-    }
-
-    @Override
-    public void render() {
-        glPushMatrix();
-
-        glTranslated(pos.x, pos.y - HEIGHT / 2, pos.z);
-        glRotated(-ang.y, 0, 1, 0);
-
-        Batch.renderModel(playerModel);
-
-        glPopMatrix();
-    }
-
-    @Override
-    public void createRigidBody() {
-        Vector3f localInertia = new Vector3f();
-        collisionShape.calculateLocalInertia(MASS, localInertia);
-        RigidBodyConstructionInfo constructionInfo = PhysicsUtils.createRigidBodyConstructionInfo(MASS, new Point3d(0, 0, 0), collisionShape, localInertia);
-        constructionInfo.restitution = RESTITUTION;
-        constructionInfo.friction = FRICTION;
-        rigidBody = new RigidBody(constructionInfo);
-        rigidBody.setActivationState(CollisionObject.DISABLE_DEACTIVATION);
-        rigidBody.setCcdMotionThreshold(CCD_MOTION_THRESHOLD);
-        rigidBody.setCcdSweptSphereRadius(CCD_SPHERE_SWEPT_RADIUS);
-    }
-
-    public void setPos(Point3d pos) {
-        Vector3f vectorPos = new Vector3f((float) pos.x, (float) pos.y + HEIGHT / 2, (float) pos.z);
-        Vector3f curPos = rigidBody.getWorldTransform(new Transform()).origin;
-        vectorPos.sub(curPos);
-        rigidBody.translate(vectorPos);
-    }
-
-    @Override
-    public void addToDynamicsWorld(DynamicsWorld dynamicsWorld) {
-        dynamicsWorld.addRigidBody(rigidBody);
-    }
-    */
 }

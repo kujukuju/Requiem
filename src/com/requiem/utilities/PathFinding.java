@@ -1,17 +1,23 @@
 package com.requiem.utilities;
 
+import com.requiem.Requiem;
 import com.requiem.abstractentities.pathfinding.PathConvexShape;
 import com.requiem.abstractentities.pathfinding.PathLevel;
 import com.requiem.abstractentities.pathfinding.PathVertex;
+import org.lwjgl.util.glu.Sphere;
 
 import javax.vecmath.Point2f;
 import javax.vecmath.Point3f;
 import java.util.*;
 
+import static org.lwjgl.opengl.GL11.*;
+
 /**
  * Created by Trent on 1/21/2015.
  */
 public class PathFinding {
+    public static PathLevel pathLevel;
+
     //TODO it would make it faster if I made planeVertex extend point3d so I dont have to create new objects
     //finds the shape thats the closest to the guys feet
     public static PathConvexShape findGroundShape(Point3f guyPosition, PathLevel pathLevel) {
@@ -26,7 +32,6 @@ public class PathFinding {
 
         for (PathConvexShape curPathConvexShape : pathConvexShapeList) {
             if (curPathConvexShape.xzPath.contains(guyPosition.x, guyPosition.z)) {
-                System.out.println("contains!!!" + GameTime.getCurrentMillis());
                 Point2f guyPoint2f = new Point2f(guyPosition.x, guyPosition.z);
                 int planeVertexIndex = curPathConvexShape.vertexIndexPointer.get(0);
                 PathVertex planeVertex = curPathConvexShape.parentMesh.pathVertexList.get(planeVertexIndex);
@@ -49,10 +54,35 @@ public class PathFinding {
 
         PathConvexShape startShape = findGroundShape(from, pathLevel);
         PathConvexShape endShape = findGroundShape(to, pathLevel);
-        Set<Integer> endShapeVertexIndices = new HashSet<Integer>();
-        for (int index : endShape.vertexIndexPointer) {
-            endShapeVertexIndices.add(index);
+        //check if youre in the same polygon as the target
+        if (startShape.equals(endShape)) {
+            if (!isTooSteep(maxSteepness, from, to)) {
+                returnVertices.add(to);
+
+                return returnVertices;
+            }
         }
+        Set<PathVertex> endShapeVertices = new HashSet<PathVertex>();
+        for (int index : endShape.vertexIndexPointer) {
+            PathVertex curPathVertex = endShape.parentMesh.pathVertexList.get(index);
+            endShapeVertices.add(curPathVertex);
+        }
+
+        glPushMatrix();
+        glRotated(-Requiem.GAME_CAMERA.ang.x, 1, 0, 0);
+        glRotated(-Requiem.GAME_CAMERA.ang.y, 0, 1, 0);
+        glRotated(-Requiem.GAME_CAMERA.ang.z, 0, 0, 1);
+        glTranslated(-Requiem.GAME_CAMERA.pos.x, -Requiem.GAME_CAMERA.pos.y, -Requiem.GAME_CAMERA.pos.z);
+        glColor4f(1, 1, 0, 1);
+        Sphere sphere = new Sphere();
+        for (int i : endShape.vertexIndexPointer) {
+            PathVertex pv = endShape.parentMesh.pathVertexList.get(i);
+            glPushMatrix();
+            glTranslatef(pv.x, pv.y, pv.z);
+            sphere.draw(0.3f, 16, 16);
+            glPopMatrix();
+        }
+        glPopMatrix();
 
         //if theres a max value the little dude can go before he gives up, make this it
         double shortestPathLength = Short.MAX_VALUE;
@@ -74,7 +104,7 @@ public class PathFinding {
             currentTraversedVerticesList.add(currentTraversedVertices);
 
             //TODO make pathvertex extend point3d and dont recreate every time
-            currentLengthList.add((float) MathUtils.quickLength(from, curPathVertex));
+            currentLengthList.add(MathUtils.quickLength(from, curPathVertex));
 
             if (isTooSteep(maxSteepness, from, curPathVertex)) {
                 currentTooSteepYHeightList.add(curPathVertex.y - from.y);
@@ -98,13 +128,37 @@ public class PathFinding {
             //check ledge heights
             boolean stillNotTooSteep = maxLedgeHeight == 0 || currentTooSteepYHeight < maxLedgeHeight;
             boolean stillNotTooLong = currentLength < shortestPathLength;
+            //TODO mightneed to put this after the last for loop
             if (stillNotTooSteep && stillNotTooLong) {
                 //get all connected shapes
                 for (PathConvexShape adjacentShape : currentVertex.connectedShapes) {
                     //get all vertices in the current shape
                     for (int nextVertexIndex : adjacentShape.vertexIndexPointer) {
-                        //if you havent already visited it
-                        if (!alreadyVisitedVertexIndices.contains(nextVertexIndex)/* && !endShapeVertexIndices.contains(nextVertexIndex)*/) {
+                        //if you can maybe reach the end
+                        if (endShapeVertices.contains(currentVertex) && !alreadyVisitedVertexIndices.contains(nextVertexIndex)) {
+                            float addLength = MathUtils.quickLength(currentVertex, to);
+
+                            //TODO might have to say or travel length is less than guy width so its not a tiny little ledge
+                            float addYHeight = 0;
+                            if (isTooSteep(maxSteepness, currentVertex, to)) {
+                                addYHeight += to.y - currentVertex.y;
+                            } else {
+                                //too steep height resets if it finds an okay spot to walk on
+                                addYHeight = -currentTooSteepYHeight;
+                            }
+
+                            boolean pathToEndNotTooSteep = maxLedgeHeight == 0 || currentTooSteepYHeight + addYHeight < maxLedgeHeight;
+                            boolean pathToEndNotTooLong = currentLength + addLength < shortestPathLength;
+
+                            if (pathToEndNotTooSteep && pathToEndNotTooLong) {
+                                ArrayList<Point3f> currentTraversedVerticesClone = (ArrayList<Point3f>) currentTraversedVertices.clone();
+                                currentTraversedVerticesClone.add(to);
+
+                                shortestPathLength = currentLength + addLength;
+                                returnVertices = currentTraversedVerticesClone;
+                            }
+                        //if you havent already visited it and cant immediately reach the end
+                        } else if (!alreadyVisitedVertexIndices.contains(nextVertexIndex)) {
                             //go on to the next vertex
                             //updated the values for the move
                             PathVertex nextVertex = adjacentShape.parentMesh.pathVertexList.get(nextVertexIndex);
@@ -116,7 +170,7 @@ public class PathFinding {
                             HashSet<Integer> alreadyVisitedVertexIndicesClone = (HashSet<Integer>) alreadyVisitedVertexIndices.clone();
                             alreadyVisitedVertexIndicesClone.add(nextVertexIndex);
 
-                            float addLength = (float) MathUtils.quickLength(currentVertex, nextVertex);
+                            float addLength = MathUtils.quickLength(currentVertex, nextVertex);
 
                             float addYHeight = 0;
                             //TODO might have to say or travel length is less than guy width so its not a tiny little ledge
@@ -132,33 +186,6 @@ public class PathFinding {
                             currentLengthList.add(currentLength + addLength);
                             currentTooSteepYHeightList.add(currentTooSteepYHeight + addYHeight);
                             alreadyVisitedVertexIndicesList.add(alreadyVisitedVertexIndicesClone);
-
-
-                            //can reach the end of the path
-                            //TODO this might be bad code and repetitive
-                            //TODO the problem is you have to treat the end differently since its a point not a vertex
-                            if (endShapeVertexIndices.contains(nextVertexIndex)) {
-                                addLength += MathUtils.quickLength(nextVertex, to);
-
-                                //TODO might have to say or travel length is less than guy width so its not a tiny little ledge
-                                if (isTooSteep(maxSteepness, nextVertex, to)) {
-                                    addYHeight += to.y - nextVertex.y;
-                                } else {
-                                    //too steep height resets if it finds an okay spot to walk on
-                                    addYHeight = -currentTooSteepYHeight;
-                                }
-
-                                boolean pathToEndNotTooSteep = maxLedgeHeight == 0 || currentTooSteepYHeight + addYHeight < maxLedgeHeight;
-                                boolean pathToEndNotTooLong = currentLength + addLength < shortestPathLength;
-
-                                if (pathToEndNotTooSteep && pathToEndNotTooLong) {
-                                    ArrayList<Point3f> currentTraversedVerticesCloneClone = (ArrayList<Point3f>) currentTraversedVerticesClone.clone();
-                                    currentTraversedVerticesCloneClone.add(to);
-
-                                    shortestPathLength = currentLength + addLength;
-                                    returnVertices = currentTraversedVerticesClone;
-                                }
-                            }
                         }
                     }
                 }

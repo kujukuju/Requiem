@@ -18,32 +18,33 @@ public class MathUtils {
         return crossProduct;
     }
 
-    public static double calculatePlaneY(Point2f point, Point3f planePoint, Vector3f gradient) {
+    public static float calculatePlaneY(Point2f point, Point3f planePoint, Vector3f gradient) {
         if (gradient.y == 0) {
-            return Double.NaN;
+            return Float.NaN;
         }
 
         //move y to the other side and divide by y coefficient
         gradient.scale(-1.0f / gradient.y);
-        double deltaX = point.x - planePoint.x;
-        double deltaZ = point.y - planePoint.z;
-        double deltaY = gradient.x * deltaX + gradient.z * deltaZ;
+        float deltaX = point.x - planePoint.x;
+        float deltaZ = point.y - planePoint.z;
+        float deltaY = gradient.x * deltaX + gradient.z * deltaZ;
 
         return planePoint.y + deltaY;
     }
 
     //TODO not quick yet lol
-    public static double quickLength(Point3f from, Point3f to) {
-        return Math.sqrt((to.x - from.x) * (to.x - from.x) + (to.y - from.y) * (to.y - from.y) + (to.z - from.z) * (to.z - from.z));
+    public static float quickLength(Point3f from, Point3f to) {
+        return (float) Math.sqrt((to.x - from.x) * (to.x - from.x) + (to.y - from.y) * (to.y - from.y) + (to.z - from.z) * (to.z - from.z));
     }
 
-    public static double calculateSteepnessAngle(Point3f from, Point3f to) {
-        double xzLength = quickLength(new Point3f(from.x, 0, from.z), new Point3f(to.x, 0, to.z));
-        double yLength = to.y - from.y;
+    //TODO walls that are like 160 degrees might be treated as 20
+    public static float calculateSteepnessAngle(Point3f from, Point3f to) {
+        float xzLength = quickLength(new Point3f(from.x, 0, from.z), new Point3f(to.x, 0, to.z));
+        float yLength = to.y - from.y;
 
-        double angle = Math.atan2(yLength, xzLength);
+        float angle = (float) Math.atan2(yLength, xzLength);
         if (Math.abs(angle) > 90) {
-            angle = Math.signum(angle) * Math.PI - angle;
+            angle = (float) (Math.signum(angle) * Math.PI - angle);
         }
         return angle;
     }

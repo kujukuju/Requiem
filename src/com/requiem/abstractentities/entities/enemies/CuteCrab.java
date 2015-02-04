@@ -7,12 +7,18 @@ import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
 import com.bulletphysics.linearmath.Transform;
+import com.requiem.abstractentities.entities.Entity;
+import com.requiem.abstractentities.entities.Player;
+import com.requiem.logic.AIProcessor;
 import com.requiem.utilities.AssetManager;
 import com.requiem.utilities.PhysicsUtils;
 import com.requiem.utilities.renderutilities.Batch;
 import com.trentwdavies.daeloader.Model;
 
 import javax.vecmath.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -21,6 +27,8 @@ import static org.lwjgl.opengl.GL11.*;
  */
 public class CuteCrab implements Enemy {
     public static final String MODEL_PATH = "assets/models/enemies/crab.dae";
+
+    private AIProcessor aiProcessor;
 
     private Model model;
     private CollisionShape collisionShape;
@@ -35,21 +43,26 @@ public class CuteCrab implements Enemy {
     private static final float ACCEL = 160;
     private static final float FRICTION = 80;
     private static final float RESTITUTION = 0.15f;
+    private static final float MAX_STEEPNESS = (float) (Math.PI * 40 / 180);
+    private static final float MAX_JUMP_HEIGHT = 0;
 
-
-    private static final float WIDTH = 0.8f;
-    private static final float HEIGHT = 0.5f;
-    private static final float CCD_MOTION_THRESHOLD = WIDTH / 2;//smallest radius to start doing continuous physics... I think it should be the smallest width of the person
-    private static final float CCD_SPHERE_SWEPT_RADIUS = 0.5f;//should fit inside the person
+    private static final float WIDTH = 2.5f;
+    private static final float HEIGHT = 2.1f;
+    private static final float CCD_MOTION_THRESHOLD = Math.min(WIDTH, HEIGHT) / 2;//smallest radius to start doing continuous physics... I think it should be the smallest width of the person
+    private static final float CCD_SPHERE_SWEPT_RADIUS = Math.min(WIDTH, HEIGHT) / 2;//should fit inside the person
 
     @Override
     public void init() {
         pos = new Point3f();
         vel = new Vector3f();
         ang = new Vector3f();
+        aiProcessor = new AIProcessor(this);
         model = (Model) AssetManager.getAsset(MODEL_PATH);
 
-        collisionShape = new CapsuleShape(WIDTH / 2, HEIGHT / 2);
+        float radius = Math.min(WIDTH, HEIGHT) / 2;
+        float height = Math.max(0, HEIGHT - radius * 2);
+        collisionShape = new CapsuleShape(radius, height);
+
         Vector3f localInertia = new Vector3f(0, 0, 0);
         collisionShape.calculateLocalInertia(MASS, localInertia);
         createRigidBody();
@@ -61,6 +74,18 @@ public class CuteCrab implements Enemy {
     public void update() {
         pos = new Point3f(rigidBody.getWorldTransform(new Transform()).origin);
         rigidBody.getLinearVelocity(vel);
+
+        aiProcessor.update();
+    }
+
+    @Override
+    public AIProcessor getAIProcessor() {
+        return aiProcessor;
+    }
+
+    @Override
+    public void setAIProcessor(AIProcessor aiProcessor) {
+        this.aiProcessor = aiProcessor;
     }
 
     @Override
@@ -100,6 +125,26 @@ public class CuteCrab implements Enemy {
 
     @Override
     public void setModelPath(String path) {
+        //final
+    }
+
+    @Override
+    public float getMaxSteepness() {
+        return MAX_STEEPNESS;
+    }
+
+    @Override
+    public void setMaxSteepness(float maxSteepness) {
+        //final
+    }
+
+    @Override
+    public float getMaxJumpHeight() {
+        return MAX_JUMP_HEIGHT;
+    }
+
+    @Override
+    public void setMaxJumpHeight(float maxJumpHeight) {
         //final
     }
 

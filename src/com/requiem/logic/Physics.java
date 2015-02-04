@@ -11,6 +11,7 @@ import com.requiem.listeners.GameInput;
 import com.requiem.managers.EnemyManager;
 import com.requiem.managers.PlayerManager;
 import com.requiem.managers.SettingsManager;
+import com.requiem.states.PlayableState;
 import com.requiem.utilities.GameTime;
 import com.requiem.utilities.PhysicsUtils;
 import org.lwjgl.input.Keyboard;
@@ -29,7 +30,6 @@ public class Physics {
     public static final double TOLERANCE = 0.00001;
 
     public static DiscreteDynamicsWorld dynamicsWorld;
-    public static Level currentLevel;
 
     private static List<Collidable> collidables;
 
@@ -49,7 +49,7 @@ public class Physics {
         Player mainPlayer = PlayerManager.PLAYER;
 
         System.out.println("adding rigid bodies to dynamicsworld");
-        Physics.currentLevel.addToDynamicsWorld(dynamicsWorld);
+        PlayableState.level.addToDynamicsWorld(dynamicsWorld);
         mainPlayer.addToDynamicsWorld(dynamicsWorld);
         for (Enemy enemy : EnemyManager.enemyList) {
             enemy.addToDynamicsWorld(dynamicsWorld);
@@ -84,12 +84,10 @@ public class Physics {
         cameraPosition();
     }
 
-    public static void setCurrentLevel(Level currentLevel) {
-        Physics.currentLevel = currentLevel;
-
+    public static void updateCurrentLevel() {
         if (init) {
             //TODO if youre changing the level after its been initialized you have to do a lot more than this probably
-            Physics.currentLevel.addToDynamicsWorld(dynamicsWorld);
+            PlayableState.level.addToDynamicsWorld(dynamicsWorld);
         }
     }
 
