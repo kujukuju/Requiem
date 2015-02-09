@@ -1,10 +1,12 @@
 package com.requiem;
 
+import com.requiem.abilities.GroundExplosion;
 import com.requiem.abstractentities.GameCamera;
 import com.requiem.abstractentities.entities.Player;
 import com.requiem.abstractentities.entities.enemies.CuteCrab;
 import com.requiem.interfaces.State;
 import com.requiem.listeners.GameInput;
+import com.requiem.managers.AbilityManager;
 import com.requiem.managers.FontManager;
 import com.requiem.managers.SettingsManager;
 import com.requiem.managers.StateManager;
@@ -13,6 +15,7 @@ import com.requiem.states.TitleScreenState;
 import com.requiem.utilities.AssetManager;
 import com.requiem.utilities.GameTime;
 import com.trentwdavies.daeloader.Model;
+import com.trentwdavies.textureloader.Texture;
 import org.lwjgl.opengl.Display;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -26,10 +29,10 @@ public class Requiem {
         SettingsManager.loadSettings();
         int[] resolution = SettingsManager.getResolution();
         updateResolution();
-        loadLoadScreen();
+        loadLoadingScreen();
 
-        loadStuff();
         init();
+        loadStuff();
 
         //Gdx.input.setInputProcessor(gameInputProcessor);
         //Gdx.input.setCatchBackKey(true);
@@ -46,7 +49,7 @@ public class Requiem {
         }
     }
 
-    private void loadLoadScreen() {
+    private void loadLoadingScreen() {
         //Globals.ASSET_MANAGER.queue("images/loading-screen.png", Texture.class);
         //Globals.ASSET_MANAGER.queue("images/white-pixel.png", Texture.class);
         //Globals.ASSET_MANAGER.finishLoading();
@@ -58,6 +61,7 @@ public class Requiem {
         AssetManager.queue(PlayableState.PATH_MODEL_PATH, Model.class);
         AssetManager.queue(Player.MODEL_PATH, Model.class);
         AssetManager.queue(CuteCrab.MODEL_PATH, Model.class);
+        AssetManager.queue(AbilityManager.ABILITY_ICON_TEXTURES_PATH, Texture.class);
         AssetManager.load();
         AssetManager.pauseWhileLoading();
     }
@@ -79,10 +83,8 @@ public class Requiem {
         glEnable(GL_LIGHTING);
         glEnable(GL_LIGHT0);
 
-        //glEnable(GL_NORMALIZE);
-
         glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
+        glCullFace(GL_FRONT);
         glEnable(GL_COLOR_MATERIAL);
         glColorMaterial(GL_FRONT, GL_DIFFUSE);
 

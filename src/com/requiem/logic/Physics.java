@@ -3,6 +3,7 @@ package com.requiem.logic;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.requiem.Requiem;
+import com.requiem.abstractentities.entities.Entity;
 import com.requiem.abstractentities.entities.enemies.Enemy;
 import com.requiem.Level;
 import com.requiem.abstractentities.entities.Player;
@@ -17,6 +18,7 @@ import com.requiem.utilities.PhysicsUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
+import javax.vecmath.Point3f;
 import javax.vecmath.Vector3f;
 import java.util.List;
 
@@ -196,6 +198,20 @@ public class Physics {
     private static void enemyAngles(Enemy enemy) {
         enemy.getRigidBody().setAngularFactor(0);
         enemy.getRigidBody().setAngularVelocity(new Vector3f(0, 0, 0));
+
+        List<Point3f> path = enemy.getAIProcessor().getCurrentPath();
+        List<Entity> targets = enemy.getAIProcessor().getTargets();
+        if (path.size() > 0) {
+            Point3f enemyPos = enemy.getPos();
+            Point3f pathPos = path.get(0);
+            float yawAngleToPath = (float) Math.toDegrees(Math.atan2(pathPos.z - enemyPos.z, pathPos.x - enemyPos.x)) + 90;
+            enemy.getAng().y = yawAngleToPath;
+        } else if (targets.size() > 0) {
+            Point3f enemyPos = enemy.getPos();
+            Point3f targetPos = enemy.getAIProcessor().getTargets().get(0).getPos();
+            float yawAngleToTarget = (float) Math.toDegrees(Math.atan2(targetPos.z - enemyPos.z, targetPos.x - enemyPos.x)) + 90;
+            enemy.getAng().y = yawAngleToTarget;
+        }
     }
 
     //TODO need to do air friction if youre going faster than max speed
@@ -204,7 +220,7 @@ public class Physics {
         float originalSpeedSquaredXZ = new Vector3f(enemy.getVel().x, 0, enemy.getVel().z).lengthSquared();
 
         Vector3f appliedForce = new Vector3f();
-        /*if (GameInput.keysDown[Keyboard.KEY_W]) {
+        /*if (true) {
             appliedForce.add(new Vector3f((float) Math.sin(yawRadians), 0, (float) -Math.cos(yawRadians)));
         }
         if (GameInput.keysDown[Keyboard.KEY_S]) {

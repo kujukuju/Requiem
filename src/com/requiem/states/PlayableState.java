@@ -8,8 +8,10 @@ import com.requiem.abstractentities.pathfinding.PathLevel;
 import com.requiem.interfaces.State;
 import com.requiem.logic.AIProcessor;
 import com.requiem.logic.Physics;
+import com.requiem.managers.AbilityManager;
 import com.requiem.managers.EnemyManager;
 import com.requiem.managers.PlayerManager;
+import com.requiem.overlays.ActionBar;
 import com.requiem.utilities.GraphicsUtils;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.util.glu.Sphere;
@@ -26,12 +28,15 @@ public class PlayableState implements State {
     public static final String PATH_MODEL_PATH = "assets/levels/pathfinding/pathtest-path.dae";
     public static Level level;
     public static PathLevel pathLevel;
+    public static ActionBar actionBar;
 
     private boolean init;
 
     @Override
     public void init() {
         Mouse.setGrabbed(true);
+
+        actionBar = new ActionBar();
 
         changeLevel(new Level(MODEL_PATH), new PathLevel(PATH_MODEL_PATH));
         Physics.updateCurrentLevel();
@@ -64,6 +69,9 @@ public class PlayableState implements State {
         }
 
         Physics.update();
+
+        AbilityManager.update();
+        actionBar.update();
     }
 
     @Override
@@ -88,24 +96,30 @@ public class PlayableState implements State {
             enemy.render();
         }
 
-        glLineWidth(0.2f);
-        glColor4f(1, 0, 0, 1);
-        if (AIProcessor.spherePoints.size() > 0) {
-            glBegin(GL_LINES);
-            glVertex3f(EnemyManager.enemyList.get(0).getPos().x, EnemyManager.enemyList.get(0).getPos().y, EnemyManager.enemyList.get(0).getPos().z);
-            glVertex3f(AIProcessor.spherePoints.get(0).x, AIProcessor.spherePoints.get(0).y, AIProcessor.spherePoints.get(0).z);
-            glEnd();
-        }
-        for (int i = 0; i < AIProcessor.spherePoints.size() - 1; i++) {
-            Point3f point1 = AIProcessor.spherePoints.get(i);
-            Point3f point2 = AIProcessor.spherePoints.get(i + 1);
-            glBegin(GL_LINES);
-            glVertex3f(point1.x, point1.y, point1.z);
-            glVertex3f(point2.x, point2.y, point2.z);
-            glEnd();
-        }
+glLineWidth(0.2f);
+glColor4f(1, 0, 0, 1);
+if (AIProcessor.spherePoints.size() > 0) {
+    glBegin(GL_LINES);
+    glVertex3f(EnemyManager.enemyList.get(0).getPos().x, EnemyManager.enemyList.get(0).getPos().y, EnemyManager.enemyList.get(0).getPos().z);
+    glVertex3f(AIProcessor.spherePoints.get(0).x, AIProcessor.spherePoints.get(0).y, AIProcessor.spherePoints.get(0).z);
+    glEnd();
+}
+for (int i = 0; i < AIProcessor.spherePoints.size() - 1; i++) {
+    Point3f point1 = AIProcessor.spherePoints.get(i);
+    Point3f point2 = AIProcessor.spherePoints.get(i + 1);
+    glBegin(GL_LINES);
+    glVertex3f(point1.x, point1.y, point1.z);
+    glVertex3f(point2.x, point2.y, point2.z);
+    glEnd();
+}
 
         glPopMatrix();
+
+        renderOrthographic();
+    }
+
+    public void renderOrthographic() {
+        actionBar.render();
     }
 
     @Override

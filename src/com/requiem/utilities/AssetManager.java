@@ -4,10 +4,13 @@ import com.requiem.Requiem;
 import com.requiem.interfaces.Asset;
 import com.trentwdavies.daeloader.ColladaLoader;
 import com.trentwdavies.daeloader.Model;
+import com.trentwdavies.textureloader.Texture;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,29 +33,27 @@ public class AssetManager {
     public static void load() {
         loading.set(true);
 
-        new Thread() {
-            public void run() {
-                while (!queue.isEmpty()) {
-                    Set<String> keySet = queue.keySet();
-                    for (String path : keySet) {
-                        Class type = queue.get(path);
-                        long bytes = fileBytes.get(path);
+        //start thread?
+        while (!queue.isEmpty()) {
+            Set<String> keySet = queue.keySet();
+            for (String path : keySet) {
+                Class type = queue.get(path);
+                long bytes = fileBytes.get(path);
 
-                        Asset asset = loadAsset(path, type);
-                        filePathAssetMap.put(path, asset);
+                Asset asset = loadAsset(path, type);
+                filePathAssetMap.put(path, asset);
 
-                        readBytes.addAndGet(bytes);
-                        queue.remove(path);
-                    }
-                }
-
-                readBytes.set(0);
-                totalBytes.set(0);
-                queue.clear();
-                fileBytes.clear();
-                loading.set(false);
+                readBytes.addAndGet(bytes);
+                queue.remove(path);
             }
-        }.start();
+        }
+
+        readBytes.set(0);
+        totalBytes.set(0);
+        queue.clear();
+        fileBytes.clear();
+        loading.set(false);
+        //end thread?
     }
 
     //is this faster if I do it in a thread? if so colladaloader needs to be not static
@@ -115,6 +116,12 @@ public class AssetManager {
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (SAXException e) {
+                e.printStackTrace();
+            }
+        } else if (type == Texture.class) {
+            try {
+                return new Texture(new FileInputStream(path), true);
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

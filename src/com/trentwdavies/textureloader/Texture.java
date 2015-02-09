@@ -13,9 +13,10 @@ import java.nio.ByteOrder;
 
 import javax.imageio.ImageIO;
 
+import com.requiem.interfaces.Asset;
 import org.lwjgl.opengl.GL30;
 
-public class Texture {
+public class Texture implements Asset {
 	private int mId;
 	private ByteBuffer mImageData;
 	private int mWidth;
@@ -30,6 +31,16 @@ public class Texture {
 	}
 
 	public Texture(byte[] image, int width, int height, boolean mipmap) {
+		for (int i = 0; i < image.length; i += 4) {
+			byte alpha = image[i];
+			byte red = image[i + 1];
+			byte green = image[i + 2];
+			byte blue = image[i + 3];
+			image[i] = red;
+			image[i + 1] = green;
+			image[i + 2] = blue;
+			image[i + 3] = alpha;
+		}
 		ByteBuffer pb = ByteBuffer.allocateDirect(image.length).order(ByteOrder.nativeOrder());
 		pb.put(image).flip();
 		setupTexture(pb, width, height, mipmap);
@@ -41,6 +52,14 @@ public class Texture {
 
 	public void bind() {
 		glBindTexture(GL_TEXTURE_2D, mId);
+	}
+
+	public int getWidth() {
+		return mWidth;
+	}
+
+	public int getHeight() {
+		return mHeight;
 	}
 
 	private void setupTexture(ByteBuffer image, int width, int height, boolean mipmap) {

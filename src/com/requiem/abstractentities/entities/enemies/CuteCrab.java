@@ -39,7 +39,7 @@ public class CuteCrab implements Enemy {
     private Vector3f ang;
 
     private static final float MASS = 2;
-    private static final float MAX_SPEED = 6;
+    private static final float MAX_SPEED = 3;
     private static final float ACCEL = 160;
     private static final float FRICTION = 80;
     private static final float RESTITUTION = 0.15f;

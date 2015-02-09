@@ -121,7 +121,8 @@ public class TitleScreenState implements State {
     }
 
     public void renderOrthographic() {
-        GraphicsUtils.beginOrtho();
+        int[] resolution = SettingsManager.getResolution();
+        GraphicsUtils.beginOrtho(resolution[0], resolution[1]);
 
         //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);//TODO this is dumb af
 

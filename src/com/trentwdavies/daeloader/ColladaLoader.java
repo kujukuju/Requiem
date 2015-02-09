@@ -71,7 +71,7 @@ public class ColladaLoader {
         double radians = -Math.PI / 2;
         Matrix4d rotateRollMatrix = new Matrix4d(
                 1, 0, 0, 0,
-                0, Math.cos(radians), -Math.sin(radians), 0,
+                0, Math.cos(radians), Math.sin(radians), 0,
                 0, Math.sin(radians), Math.cos(radians), 0,
                 0, 0, 0, 1);
         Node libraryVisualScenesNode = document.getElementsByTagName("library_visual_scenes").item(0);
@@ -104,9 +104,9 @@ public class ColladaLoader {
                             Point3d curVertex = curGeometry.vertexList.get(a);
                             double[] curVertexMatrix = {curVertex.x, curVertex.y, curVertex.z};
                             double[] newVertexZUpMatrix = MatrixUtils.mult(transformMatrixZUp, curVertexMatrix);
-                            double[] newVertexYUpMatrix = MatrixUtils.mult(rotateRollMatrix, newVertexZUpMatrix);
+                            //double[] newVertexYUpMatrix = MatrixUtils.mult(rotateRollMatrix, newVertexZUpMatrix);
 
-                            Point3d newVertexYUp = new Point3d(newVertexYUpMatrix[0], newVertexYUpMatrix[1], newVertexYUpMatrix[2]);
+                            Point3d newVertexYUp = new Point3d(newVertexZUpMatrix[0], newVertexZUpMatrix[2], newVertexZUpMatrix[1]);
                             curGeometry.vertexList.set(a, newVertexYUp);
                         }
                         for (int a = 0; a < curGeometry.normalList.size(); a++) {

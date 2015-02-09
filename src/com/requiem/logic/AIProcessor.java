@@ -32,11 +32,15 @@ public class AIProcessor implements Updateable {
         targets = new ArrayList<Entity>();
         currentPath = new LinkedList<Point3f>();
     }
-public static List<Point3f> spherePoints;
+public static List<Point3f> spherePoints = new ArrayList<Point3f>();
     @Override
     public void update() {
-        calculatePathToEntity(PlayerManager.PLAYER);
-        spherePoints = currentPath;
+        //calculatePathToEntity(PlayerManager.PLAYER);
+//spherePoints = currentPath;
+    }
+
+    public List<Entity> getTargets() {
+        return targets;
     }
 
     public void addTargets(Entity... entities) {
