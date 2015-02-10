@@ -3,7 +3,9 @@ package com.requiem.abilities;
 import com.requiem.interfaces.Particle;
 import com.requiem.listeners.GameInput;
 import com.requiem.logic.Physics;
+import com.requiem.managers.ParticleManager;
 import com.requiem.managers.PlayerManager;
+import com.requiem.particles.GroundExplosionFlame;
 import com.requiem.states.PlayableState;
 import com.requiem.utilities.GameTime;
 import com.requiem.utilities.MathUtils;
@@ -23,8 +25,9 @@ public class GroundExplosion implements Ability {
 
     private long abilityCreationTime;
     private Random randomSeededGenerator;
+    private int particleCount;
+    private static final float RADIUS = 1;
 
-    private List<Particle> particleList = new LinkedList<Particle>();
     private Point3f targetPoint = new Point3f();
 
     private static final int TOTAL_CAST_TIME = 1500;
@@ -173,6 +176,16 @@ public class GroundExplosion implements Ability {
                 PlayerManager.PLAYER.getAng().y = angleToTarget.y;
                 Physics.lockPlayerAngles();
 
+                int desiredListSize = (int) (GameTime.getCurrentMillis() - startCastTime) / 10;
+                for (; particleCount < desiredListSize; particleCount++) {
+                    Particle currentParticle = new GroundExplosionFlame();
+                    currentParticle.init();
+                    currentParticle.getPos().x = targetPoint.x + randomSeededGenerator.nextFloat() * RADIUS - RADIUS / 2;
+                    currentParticle.getPos().y = targetPoint.y;
+                    currentParticle.getPos().z = targetPoint.z + randomSeededGenerator.nextFloat() * RADIUS - RADIUS / 2;
+                    ParticleManager.addParticle(currentParticle);
+                }
+
                 if (getRemainingCastTime() == 0) {
                     stage = STAGE_INDEPENDENT;
                 }
@@ -181,6 +194,7 @@ public class GroundExplosion implements Ability {
             if (stage == STAGE_CASTING) {
                 stage = STAGE_HOLDING;
                 startCastTime = 0;
+                particleCount = 0;
             }
         }
     }
