@@ -1,6 +1,7 @@
 package com.requiem.logic;
 
 import com.bulletphysics.collision.dispatch.CollisionObject;
+import com.bulletphysics.collision.dispatch.CollisionWorld;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.requiem.Requiem;
 import com.requiem.abstractentities.entities.Entity;
@@ -50,7 +51,6 @@ public class Physics {
     public static void addCollidables() {
         Player mainPlayer = PlayerManager.PLAYER;
 
-        System.out.println("adding rigid bodies to dynamicsworld");
         PlayableState.level.addToDynamicsWorld(dynamicsWorld);
         mainPlayer.addToDynamicsWorld(dynamicsWorld);
         for (Enemy enemy : EnemyManager.enemyList) {

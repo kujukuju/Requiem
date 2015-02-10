@@ -1,6 +1,8 @@
 package com.requiem;
 
+import com.bulletphysics.collision.dispatch.CollisionWorld;
 import com.bulletphysics.collision.shapes.*;
+import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
@@ -8,10 +10,14 @@ import com.requiem.interfaces.Collidable;
 import com.requiem.interfaces.Initializable;
 import com.requiem.interfaces.Renderable;
 import com.requiem.interfaces.Updateable;
+import com.requiem.logic.Physics;
+import com.requiem.states.PlayableState;
 import com.requiem.utilities.PhysicsUtils;
 import com.requiem.utilities.renderutilities.Batch;
 import com.requiem.utilities.AssetManager;
 import com.trentwdavies.daeloader.Model;
+
+import javax.vecmath.Vector3f;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.glPopMatrix;
@@ -24,6 +30,7 @@ public class Level implements Renderable, Collidable, Initializable, Updateable 
 
     public Model model;
 
+    public CollisionWorld levelCollisionWorld;
     public CollisionShape[] collisionShapes;
     public RigidBody[] rigidBodies;
 
@@ -40,6 +47,12 @@ public class Level implements Renderable, Collidable, Initializable, Updateable 
 
         collisionShapes = PhysicsUtils.getBvhTriangleMeshShapes(model, true);
         createRigidBody();
+
+        DiscreteDynamicsWorld dynamicsWorld = PhysicsUtils.createDynamicsWorld();
+        dynamicsWorld.setGravity(new Vector3f(0, (float) -Physics.GRAVITY, 0));
+        addToDynamicsWorld(dynamicsWorld);
+        levelCollisionWorld = dynamicsWorld.getCollisionWorld();
+        System.out.println(levelCollisionWorld.getCollisionObjectArray().size());
     }
 
     @Override

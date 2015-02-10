@@ -34,7 +34,12 @@ public class MathUtils {
 
     //TODO not quick yet lol
     public static float quickLength(Point3f from, Point3f to) {
-        return (float) Math.sqrt((to.x - from.x) * (to.x - from.x) + (to.y - from.y) * (to.y - from.y) + (to.z - from.z) * (to.z - from.z));
+        return MathUtils.quickLength(from.x, from.y, from.z, to.x, to.y, to.z);
+    }
+
+    //TODO not quick yet lol
+    public static float quickLength(float x1, float y1, float z1, float x2, float y2, float z2) {
+        return (float) Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1) + (z2 - z1) * (z2 - z1));
     }
 
     //TODO walls that are like 160 degrees might be treated as 20
@@ -47,5 +52,27 @@ public class MathUtils {
             angle = (float) (Math.signum(angle) * Math.PI - angle);
         }
         return angle;
+    }
+
+    public static Vector3f angleToVector(Vector3f angle) {
+        Vector3f returnVec = new Vector3f();
+
+        returnVec.x = (float) Math.sin(Math.toRadians(angle.y));
+        returnVec.y = (float) -Math.sin(Math.toRadians(angle.x));
+        returnVec.z = (float) -Math.cos(Math.toRadians(angle.y));
+
+        return returnVec;
+    }
+
+    public static Vector3f vectorToAngle(Vector3f vector) {
+        Vector3f returnAng = new Vector3f();
+
+        float xzPlaneDist = MathUtils.quickLength(0, 0, 0, vector.x, 0, vector.z);
+        returnAng.x = (float) Math.toDegrees(Math.atan2(vector.y, xzPlaneDist));
+        returnAng.y = (float) Math.toDegrees(Math.atan2(-vector.x, -vector.z));
+        returnAng.z = 0;
+        //TODO idk how vectors can roll lol rofl
+
+        return returnAng;
     }
 }

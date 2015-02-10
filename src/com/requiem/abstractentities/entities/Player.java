@@ -158,7 +158,15 @@ public class Player implements Collidable, Moveable {
 
     @Override
     public void setAng(Vector3f ang) {
-        this.ang = ang;
+        this.ang = ang;/*
+        float pitchDiff = this.ang.x - ang.x;
+        float yawDiff = this.ang.y - ang.y;
+        float rollDiff = this.ang.z - ang.z;
+System.out.println(ang);
+System.out.println(pitchDiff + " - " + yawDiff + " - " + rollDiff);
+        getAng().x += pitchDiff;
+        getAng().y += yawDiff;
+        getAng().z += rollDiff;*/
     }
 
 

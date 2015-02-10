@@ -10,13 +10,21 @@ import com.trentwdavies.textureloader.Texture;
 public interface Ability extends Renderable, Updateable {
     public static final int STAGE_HOLDING = 0;
     public static final int STAGE_CASTING = 1;
-    public static final int STAGE_CAST = 2;
+    public static final int STAGE_CONTROLLING = 2;
+    public static final int STAGE_INDEPENDENT = 3;
 
     public int getStage();
 
     public boolean isCasting();
+    public boolean isControlling();
+    public boolean isIndependent();
+
     public int getTotalCastTime();
     public float getCastPercent();
+    public int getRemainingCastTime();
+    public int getDeltaCastTime();
+    public long getStartCastTime();
+    public void setStartCastTime(long startCastTime);
 
     public int getTotalCharges();
     public int getRemainingCharges();

@@ -1,6 +1,7 @@
 package com.requiem.states;
 
 import com.requiem.Requiem;
+import com.requiem.abilities.Ability;
 import com.requiem.abstractentities.entities.enemies.Enemy;
 import com.requiem.Level;
 import com.requiem.abstractentities.entities.enemies.CuteCrab;
@@ -10,6 +11,7 @@ import com.requiem.logic.AIProcessor;
 import com.requiem.logic.Physics;
 import com.requiem.managers.AbilityManager;
 import com.requiem.managers.EnemyManager;
+import com.requiem.managers.ParticleManager;
 import com.requiem.managers.PlayerManager;
 import com.requiem.overlays.ActionBar;
 import com.requiem.utilities.GraphicsUtils;
@@ -24,19 +26,16 @@ import static org.lwjgl.opengl.GL11.*;
  * Created by Trent on 10/24/2014.
  */
 public class PlayableState implements State {
-    public static final String MODEL_PATH = "assets/levels/pathfinding/pathtest.dae";
-    public static final String PATH_MODEL_PATH = "assets/levels/pathfinding/pathtest-path.dae";
+    public static final String MODEL_PATH = "assets/levels/stadium.dae";
+    public static final String PATH_MODEL_PATH = "assets/levels/stadium.dae";
     public static Level level;
     public static PathLevel pathLevel;
-    public static ActionBar actionBar;
 
     private boolean init;
 
     @Override
     public void init() {
         Mouse.setGrabbed(true);
-
-        actionBar = new ActionBar();
 
         changeLevel(new Level(MODEL_PATH), new PathLevel(PATH_MODEL_PATH));
         Physics.updateCurrentLevel();
@@ -49,6 +48,9 @@ public class PlayableState implements State {
         }
 
         level.init();
+
+        AbilityManager.init();
+        ActionBar.init();
 
         init = true;
     }
@@ -64,14 +66,13 @@ public class PlayableState implements State {
             init();
 
         PlayerManager.PLAYER.update();
-        for (Enemy enemy : EnemyManager.enemyList) {
-            enemy.update();
-        }
+        AbilityManager.update();
+        ParticleManager.update();
+        EnemyManager.update();
 
         Physics.update();
 
-        AbilityManager.update();
-        actionBar.update();
+        ActionBar.update();
     }
 
     @Override
@@ -92,9 +93,11 @@ public class PlayableState implements State {
 
         level.render();
         PlayerManager.PLAYER.render();
-        for (Enemy enemy : EnemyManager.enemyList) {
-            enemy.render();
-        }
+        EnemyManager.renderEnemies();
+        AbilityManager.renderAbilities();
+        ParticleManager.renderParticles();
+
+
 
 glLineWidth(0.2f);
 glColor4f(1, 0, 0, 1);
@@ -113,13 +116,15 @@ for (int i = 0; i < AIProcessor.spherePoints.size() - 1; i++) {
     glEnd();
 }
 
+
+
         glPopMatrix();
 
         renderOrthographic();
     }
 
     public void renderOrthographic() {
-        actionBar.render();
+        ActionBar.render();
     }
 
     @Override

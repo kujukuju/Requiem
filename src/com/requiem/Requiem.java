@@ -10,6 +10,7 @@ import com.requiem.managers.AbilityManager;
 import com.requiem.managers.FontManager;
 import com.requiem.managers.SettingsManager;
 import com.requiem.managers.StateManager;
+import com.requiem.particles.GroundExplosionFlame;
 import com.requiem.states.PlayableState;
 import com.requiem.states.TitleScreenState;
 import com.requiem.utilities.AssetManager;
@@ -17,6 +18,8 @@ import com.requiem.utilities.GameTime;
 import com.trentwdavies.daeloader.Model;
 import com.trentwdavies.textureloader.Texture;
 import org.lwjgl.opengl.Display;
+
+import java.util.Random;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -61,7 +64,10 @@ public class Requiem {
         AssetManager.queue(PlayableState.PATH_MODEL_PATH, Model.class);
         AssetManager.queue(Player.MODEL_PATH, Model.class);
         AssetManager.queue(CuteCrab.MODEL_PATH, Model.class);
+
         AssetManager.queue(AbilityManager.ABILITY_ICON_TEXTURES_PATH, Texture.class);
+        AssetManager.queue(GroundExplosionFlame.SPRITE_SHEET_PATH, Texture.class);
+
         AssetManager.load();
         AssetManager.pauseWhileLoading();
     }

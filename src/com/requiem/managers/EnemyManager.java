@@ -10,4 +10,16 @@ import java.util.List;
  */
 public class EnemyManager {
     public static List<Enemy> enemyList = new ArrayList<Enemy>();
+
+    public static void update() {
+        for (Enemy enemy : enemyList) {
+            enemy.update();
+        }
+    }
+
+    public static void renderEnemies() {
+        for (Enemy enemy : enemyList) {
+            enemy.render();
+        }
+    }
 }

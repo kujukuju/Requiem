@@ -3,10 +3,7 @@ package com.requiem.utilities;
 import com.bulletphysics.collision.broadphase.AxisSweep3;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
-import com.bulletphysics.collision.dispatch.CollisionConfiguration;
-import com.bulletphysics.collision.dispatch.CollisionDispatcher;
-import com.bulletphysics.collision.dispatch.CollisionObject;
-import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
+import com.bulletphysics.collision.dispatch.*;
 import com.bulletphysics.collision.shapes.*;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.DynamicsWorld;
@@ -18,6 +15,7 @@ import com.bulletphysics.extras.gimpact.GImpactMeshShape;
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
+import com.requiem.Level;
 import com.requiem.logic.Physics;
 import com.trentwdavies.daeloader.Face;
 import com.trentwdavies.daeloader.Geometry;
@@ -146,5 +144,27 @@ public class PhysicsUtils {
         collisionObject.setCollisionShape(collisionShape);
 
         return collisionObject;
+    }
+
+    public static CollisionObject rayTestLevelForCollisionObject(Level level, Point3f from, Point3f to) {
+        Vector3f fromVec = new Vector3f(from.x, from.y, from.z);
+        Vector3f toVec = new Vector3f(to.x, to.y, to.z);
+        CollisionWorld.RayResultCallback rayResultCallback = new CollisionWorld.ClosestRayResultCallback(fromVec, toVec);
+        level.levelCollisionWorld.rayTest(fromVec, toVec, rayResultCallback);
+
+        return rayResultCallback.collisionObject;
+    }
+
+    public static Point3f rayTestLevelForPoint3f(Level level, Point3f from, Point3f to) {
+        Vector3f fromVec = new Vector3f(from.x, from.y, from.z);
+        Vector3f toVec = new Vector3f(to.x, to.y, to.z);
+        Vector3f diffVec = new Vector3f(toVec.x - fromVec.x, toVec.y - fromVec.y, toVec.z - fromVec.z);
+        CollisionWorld.RayResultCallback rayResultCallback = new CollisionWorld.ClosestRayResultCallback(fromVec, toVec);
+        level.levelCollisionWorld.rayTest(fromVec, toVec, rayResultCallback);
+
+        float hitFraction = rayResultCallback.closestHitFraction;
+        Point3f hitPoint = new Point3f(fromVec.x + diffVec.x * hitFraction, fromVec.y + diffVec.y * hitFraction, fromVec.z + diffVec.z * hitFraction);
+
+        return hitPoint;
     }
 }
