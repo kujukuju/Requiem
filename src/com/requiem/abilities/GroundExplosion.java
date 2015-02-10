@@ -1,31 +1,28 @@
 package com.requiem.abilities;
 
-import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.dynamics.DynamicsWorld;
-import com.bulletphysics.dynamics.RigidBody;
-import com.requiem.Requiem;
-import com.requiem.interfaces.Collidable;
 import com.requiem.interfaces.Particle;
 import com.requiem.listeners.GameInput;
+import com.requiem.logic.Physics;
 import com.requiem.managers.PlayerManager;
 import com.requiem.states.PlayableState;
-import com.requiem.utilities.AssetManager;
 import com.requiem.utilities.GameTime;
 import com.requiem.utilities.MathUtils;
 import com.requiem.utilities.PhysicsUtils;
-import com.trentwdavies.daeloader.Model;
-import com.trentwdavies.textureloader.Texture;
 
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector3f;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by Trent on 2/7/2015.
  */
 public class GroundExplosion implements Ability {
     private int stage;
+
+    private long abilityCreationTime;
+    private Random randomSeededGenerator;
 
     private List<Particle> particleList = new LinkedList<Particle>();
     private Point3f targetPoint = new Point3f();
@@ -38,6 +35,10 @@ public class GroundExplosion implements Ability {
 
     private static final int TOTAL_COOLDOWN = 0;
     private static long cooldownTimerStart;
+
+    public GroundExplosion() {
+        setAbilityCreationTime(GameTime.getCurrentMillis());
+    }
 
     @Override
     public int getStage() {
@@ -57,6 +58,17 @@ public class GroundExplosion implements Ability {
     @Override
     public boolean isIndependent() {
         return stage == STAGE_INDEPENDENT;
+    }
+
+    @Override
+    public long getAbilityCreationTime() {
+        return abilityCreationTime;
+    }
+
+    @Override
+    public void setAbilityCreationTime(long abilityCreationTime) {
+        this.abilityCreationTime = abilityCreationTime;
+        randomSeededGenerator = new Random(abilityCreationTime);
     }
 
     @Override
@@ -141,7 +153,7 @@ public class GroundExplosion implements Ability {
         if (GameInput.mouseDownLeft) {
             if (stage == STAGE_HOLDING) {
                 Point3f castFromPoint = PlayerManager.getCastFromPoint();
-                Vector3f forwardVec = MathUtils.angleToVector(PlayerManager.PLAYER.getAng());
+                Vector3f forwardVec = MathUtils.angleToForwardVector(PlayerManager.PLAYER.getAng());
                 Point3f castToPoint = new Point3f(castFromPoint.x + forwardVec.x * 10000, castFromPoint.y + forwardVec.y * 10000, castFromPoint.z + forwardVec.z * 10000);
                 targetPoint = PhysicsUtils.rayTestLevelForPoint3f(PlayableState.level, castFromPoint, castToPoint);
 
@@ -158,7 +170,8 @@ public class GroundExplosion implements Ability {
                 Vector3f vectorToTarget = new Vector3f(targetPoint.x - castFromPoint.x, targetPoint.y - castFromPoint.y, targetPoint.z - castFromPoint.z);
                 Vector3f angleToTarget = MathUtils.vectorToAngle(vectorToTarget);
                 angleToTarget.x = PlayerManager.PLAYER.getAng().x;
-                PlayerManager.PLAYER.setAng(angleToTarget);
+                PlayerManager.PLAYER.getAng().y = angleToTarget.y;
+                Physics.lockPlayerAngles();
 
                 if (getRemainingCastTime() == 0) {
                     stage = STAGE_INDEPENDENT;

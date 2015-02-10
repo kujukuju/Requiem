@@ -54,7 +54,7 @@ public class MathUtils {
         return angle;
     }
 
-    public static Vector3f angleToVector(Vector3f angle) {
+    public static Vector3f angleToForwardVector(Vector3f angle) {
         Vector3f returnVec = new Vector3f();
 
         returnVec.x = (float) Math.sin(Math.toRadians(angle.y));
@@ -64,12 +64,32 @@ public class MathUtils {
         return returnVec;
     }
 
+    public static Vector3f angleToUpVector(Vector3f angle) {
+        Vector3f returnVec = new Vector3f();
+
+        returnVec.x = (float) Math.sin(Math.toRadians(angle.y + 90));
+        returnVec.y = (float) -Math.sin(Math.toRadians(angle.x));
+        returnVec.z = (float) -Math.cos(Math.toRadians(angle.y));
+
+        return returnVec;
+    }
+
+    public static Vector3f angleToRightVector(Vector3f angle) {
+        Vector3f returnVec = new Vector3f();
+
+        returnVec.x = (float) Math.sin(Math.toRadians(angle.y));
+        returnVec.y = (float) -Math.sin(Math.toRadians(angle.x + 90));
+        returnVec.z = (float) -Math.cos(Math.toRadians(angle.y));
+
+        return returnVec;
+    }
+
     public static Vector3f vectorToAngle(Vector3f vector) {
         Vector3f returnAng = new Vector3f();
 
         float xzPlaneDist = MathUtils.quickLength(0, 0, 0, vector.x, 0, vector.z);
-        returnAng.x = (float) Math.toDegrees(Math.atan2(vector.y, xzPlaneDist));
-        returnAng.y = (float) Math.toDegrees(Math.atan2(-vector.x, -vector.z));
+        returnAng.x = (float) -Math.toDegrees(Math.atan2(vector.y, xzPlaneDist));
+        returnAng.y = (float) -Math.toDegrees(Math.atan2(-vector.x, -vector.z));
         returnAng.z = 0;
         //TODO idk how vectors can roll lol rofl
 

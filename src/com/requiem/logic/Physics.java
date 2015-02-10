@@ -36,6 +36,8 @@ public class Physics {
 
     private static List<Collidable> collidables;
 
+    private static boolean angleLocked;
+
     private static boolean init;
 
     public static void init() {
@@ -72,6 +74,7 @@ public class Physics {
         playerFrictionMovements();
         playerJumpMovements();
         playerDragMovements();
+        angleLocked = false;
 
         for (Enemy enemy : EnemyManager.enemyList) {
             enemyAngles(enemy);
@@ -93,17 +96,24 @@ public class Physics {
         }
     }
 
+    public static void lockPlayerAngles() {
+        angleLocked = true;
+    }
+
     private static void playerAngles() {
-        double[] mouseSensitivity = SettingsManager.getMouseSensitivity();
         Player player = PlayerManager.PLAYER;
 
-        player.getAng().y += Mouse.getDX() * mouseSensitivity[0];
-        player.getAng().x -= Mouse.getDY() * mouseSensitivity[1];
-        if (player.getAng().x > 89) {
-            player.getAng().x = 89;
-        }
-        if (player.getAng().x < -89) {
-            player.getAng().x = -89;
+        if (!angleLocked) {
+            double[] mouseSensitivity = SettingsManager.getMouseSensitivity();
+
+            player.getAng().y += Mouse.getDX() * mouseSensitivity[0];
+            player.getAng().x -= Mouse.getDY() * mouseSensitivity[1];
+            if (player.getAng().x > 89) {
+                player.getAng().x = 89;
+            }
+            if (player.getAng().x < -89) {
+                player.getAng().x = -89;
+            }
         }
         player.getRigidBody().setAngularFactor(0);
         player.getRigidBody().setAngularVelocity(new Vector3f(0, 0, 0));

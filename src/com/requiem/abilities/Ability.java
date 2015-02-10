@@ -19,6 +19,9 @@ public interface Ability extends Renderable, Updateable {
     public boolean isControlling();
     public boolean isIndependent();
 
+    public long getAbilityCreationTime();
+    public void setAbilityCreationTime(long abilityCreationTime);
+
     public int getTotalCastTime();
     public float getCastPercent();
     public int getRemainingCastTime();

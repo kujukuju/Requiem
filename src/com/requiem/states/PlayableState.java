@@ -2,6 +2,7 @@ package com.requiem.states;
 
 import com.requiem.Requiem;
 import com.requiem.abilities.Ability;
+import com.requiem.abilities.GroundExplosion;
 import com.requiem.abstractentities.entities.enemies.Enemy;
 import com.requiem.Level;
 import com.requiem.abstractentities.entities.enemies.CuteCrab;
@@ -115,8 +116,6 @@ for (int i = 0; i < AIProcessor.spherePoints.size() - 1; i++) {
     glVertex3f(point2.x, point2.y, point2.z);
     glEnd();
 }
-
-
 
         glPopMatrix();
 
