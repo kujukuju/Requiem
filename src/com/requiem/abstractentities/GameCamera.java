@@ -5,7 +5,6 @@ package com.requiem.abstractentities;
  */
 
 import com.requiem.managers.SettingsManager;
-import com.requiem.utilities.MathUtils;
 import org.lwjgl.util.glu.GLU;
 
 import javax.vecmath.Point3d;
@@ -44,11 +43,12 @@ public class GameCamera implements AbstractEntity {
     public void lookAt(Point3f point3f) {
         //TODO can I do this without a square root???
         //TODO use mathutils angle thing
-        float xDist = point3f.x - pos.x;
-        float yDist = point3f.y - pos.y;
-        float zDist = point3f.z - pos.z;
+        double xDist = point3f.x - pos.x;
+        double yDist = point3f.y - pos.y;
+        double zDist = point3f.z - pos.z;
 
-        float xzPlaneDist = MathUtils.quickLength(0, 0, 0, xDist, 0, zDist);
+        //TODO quick square root
+        double xzPlaneDist = Math.sqrt(xDist * xDist + zDist * zDist);
 
         ang.x = (float) Math.toDegrees(Math.atan2(yDist, xzPlaneDist));
         ang.y = (float) Math.toDegrees(Math.atan2(-xDist, -zDist));

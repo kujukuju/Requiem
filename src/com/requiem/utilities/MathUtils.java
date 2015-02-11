@@ -1,6 +1,9 @@
 package com.requiem.utilities;
 
+import org.lwjgl.util.vector.*;
+
 import javax.vecmath.*;
+import javax.vecmath.Vector3f;
 
 /**
  * Created by Trent on 1/31/2015.
@@ -57,9 +60,9 @@ public class MathUtils {
     public static Vector3f angleToForwardVector(Vector3f angle) {
         Vector3f returnVec = new Vector3f();
 
-        returnVec.x = (float) Math.sin(Math.toRadians(angle.y));
+        returnVec.x = (float) (Math.sin(Math.toRadians(angle.y)) * Math.cos(Math.toRadians(angle.x)));
         returnVec.y = (float) -Math.sin(Math.toRadians(angle.x));
-        returnVec.z = (float) -Math.cos(Math.toRadians(angle.y));
+        returnVec.z = (float) -(Math.cos(Math.toRadians(angle.y)) * Math.cos(Math.toRadians(angle.x)));
 
         return returnVec;
     }
@@ -67,9 +70,9 @@ public class MathUtils {
     public static Vector3f angleToUpVector(Vector3f angle) {
         Vector3f returnVec = new Vector3f();
 
-        returnVec.x = (float) Math.sin(Math.toRadians(angle.y + 90));
-        returnVec.y = (float) -Math.sin(Math.toRadians(angle.x));
-        returnVec.z = (float) -Math.cos(Math.toRadians(angle.y));
+        returnVec.x = (float) (Math.sin(Math.toRadians(angle.y)) * Math.cos(Math.toRadians(angle.x - 90)));
+        returnVec.y = (float) -Math.sin(Math.toRadians(angle.x - 90));
+        returnVec.z = (float) -(Math.cos(Math.toRadians(angle.y)) * Math.cos(Math.toRadians(angle.x - 90)));
 
         return returnVec;
     }
@@ -77,9 +80,9 @@ public class MathUtils {
     public static Vector3f angleToRightVector(Vector3f angle) {
         Vector3f returnVec = new Vector3f();
 
-        returnVec.x = (float) Math.sin(Math.toRadians(angle.y));
-        returnVec.y = (float) -Math.sin(Math.toRadians(angle.x + 90));
-        returnVec.z = (float) -Math.cos(Math.toRadians(angle.y));
+        returnVec.x = (float) Math.sin(Math.toRadians(angle.y + 90));
+        returnVec.y = 0;
+        returnVec.z = (float) -Math.cos(Math.toRadians(angle.y + 90));
 
         return returnVec;
     }
@@ -89,7 +92,7 @@ public class MathUtils {
 
         float xzPlaneDist = MathUtils.quickLength(0, 0, 0, vector.x, 0, vector.z);
         returnAng.x = (float) -Math.toDegrees(Math.atan2(vector.y, xzPlaneDist));
-        returnAng.y = (float) -Math.toDegrees(Math.atan2(-vector.x, -vector.z));
+        returnAng.y = (float) Math.toDegrees(Math.atan2(vector.x, -vector.z));
         returnAng.z = 0;
         //TODO idk how vectors can roll lol rofl
 

@@ -1,5 +1,6 @@
 package com.requiem.managers;
 
+import com.requiem.Requiem;
 import com.requiem.interfaces.Initializable;
 import com.requiem.interfaces.Particle;
 import com.requiem.interfaces.Updateable;
@@ -56,33 +57,16 @@ public class ParticleManager {
     }
 
     public static void renderParticles() {
-        glPushMatrix();
+        glAlphaFunc(GL_GREATER, 0.5f);
+        glEnable(GL_ALPHA_TEST);
 
-        /*float[] projMatrix = new float[16];
-        ByteBuffer tempBuffer = ByteBuffer.allocateDirect(64).order(ByteOrder.nativeOrder());
-        glGetFloat(GL_MODELVIEW_MATRIX, tempBuffer.asFloatBuffer());
-        tempBuffer.asFloatBuffer().get(projMatrix);
+        glEnable(GL_TEXTURE_2D);
 
-        float d = (float) Math.sqrt(projMatrix[0] * projMatrix[0] + projMatrix[4] * projMatrix[4] + projMatrix[8] * projMatrix[8]);
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (i == j) {
-                    projMatrix[i * 4 + j] = d;
-                } else {
-                    projMatrix[i * 4 + j] = 0;
-                }
-            }
-        }
-
-        ByteBuffer projMatrixBuffer = ByteBuffer.allocateDirect(64).order(ByteOrder.nativeOrder());
-        projMatrixBuffer.asFloatBuffer().put(projMatrix);
-
-        glLoadMatrix(projMatrixBuffer.asFloatBuffer());*/
-
+        GroundExplosionFlame.spriteSheet.bind();
         for (Particle particle : particleList) {
             particle.render();
         }
 
-        glPopMatrix();
+        glDisable(GL_TEXTURE_2D);
     }
 }

@@ -1,10 +1,10 @@
 package com.requiem.interfaces;
 
 import com.trentwdavies.textureloader.Texture;
-import org.lwjgl.util.vector.Vector3f;
 
 import javax.vecmath.Point2f;
 import javax.vecmath.Point3f;
+import javax.vecmath.Vector3f;
 
 /**
  * Created by Trent on 2/9/2015.

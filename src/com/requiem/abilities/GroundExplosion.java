@@ -154,7 +154,7 @@ public class GroundExplosion implements Ability {
     @Override
     public void update() {
         if (GameInput.mouseDownLeft) {
-            if (stage == STAGE_HOLDING) {
+            if (stage == STAGE_HOLDING && GameInput.mouseDeltaDownLeft) {
                 Point3f castFromPoint = PlayerManager.getCastFromPoint();
                 Vector3f forwardVec = MathUtils.angleToForwardVector(PlayerManager.PLAYER.getAng());
                 Point3f castToPoint = new Point3f(castFromPoint.x + forwardVec.x * 10000, castFromPoint.y + forwardVec.y * 10000, castFromPoint.z + forwardVec.z * 10000);
@@ -178,11 +178,15 @@ public class GroundExplosion implements Ability {
 
                 int desiredListSize = (int) (GameTime.getCurrentMillis() - startCastTime) / 10;
                 for (; particleCount < desiredListSize; particleCount++) {
+                    float radiusMult = randomSeededGenerator.nextFloat();
+                    float angleMult = randomSeededGenerator.nextFloat();
+                    float radius = RADIUS * radiusMult;
+                    float angle = (float) (Math.PI * 2 * angleMult);
                     Particle currentParticle = new GroundExplosionFlame();
                     currentParticle.init();
-                    currentParticle.getPos().x = targetPoint.x + randomSeededGenerator.nextFloat() * RADIUS - RADIUS / 2;
+                    currentParticle.getPos().x = (float) (targetPoint.x + Math.cos(angle) * radius);
                     currentParticle.getPos().y = targetPoint.y;
-                    currentParticle.getPos().z = targetPoint.z + randomSeededGenerator.nextFloat() * RADIUS - RADIUS / 2;
+                    currentParticle.getPos().z = (float) (targetPoint.z + Math.sin(angle) * radius);
                     ParticleManager.addParticle(currentParticle);
                 }
 

@@ -15,6 +15,6 @@ public class PlayerManager {
     public static List<Player> playerList = new ArrayList<Player>();
 
     public static Point3f getCastFromPoint() {
-        return new Point3f(PLAYER.getPos().x, PLAYER.getPos().y + 1.4f, PLAYER.getPos().z);
+        return new Point3f(PLAYER.getPos().x, PLAYER.getPos().y + 2f, PLAYER.getPos().z);
     }
 }
