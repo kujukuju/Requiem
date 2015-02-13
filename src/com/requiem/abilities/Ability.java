@@ -32,6 +32,8 @@ public interface Ability extends Renderable, Updateable {
     public int getTotalCharges();
     public int getRemainingCharges();
 
+    public float getMaxRange();
+
     public int getTotalCooldown();
     public int getRemainingCooldown();
     public float getRemainingCooldownPercent();

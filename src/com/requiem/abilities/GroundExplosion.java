@@ -26,7 +26,7 @@ public class GroundExplosion implements Ability {
     private long abilityCreationTime;
     private Random randomSeededGenerator;
     private int particleCount;
-    private static final float RADIUS = 1;
+    private static final float RADIUS = 1f;
 
     private Point3f targetPoint = new Point3f();
 
@@ -35,6 +35,8 @@ public class GroundExplosion implements Ability {
 
     private static final int TOTAL_CHARGES = 1;
     private static int remainingCharges = TOTAL_CHARGES;
+
+    private static final float MAX_RANGE = 20;
 
     private static final int TOTAL_COOLDOWN = 0;
     private static long cooldownTimerStart;
@@ -115,6 +117,11 @@ public class GroundExplosion implements Ability {
     }
 
     @Override
+    public float getMaxRange() {
+        return MAX_RANGE;
+    }
+
+    @Override
     public int getTotalCooldown() {
         return TOTAL_COOLDOWN;
     }
@@ -160,7 +167,7 @@ public class GroundExplosion implements Ability {
                 Point3f castToPoint = new Point3f(castFromPoint.x + forwardVec.x * 10000, castFromPoint.y + forwardVec.y * 10000, castFromPoint.z + forwardVec.z * 10000);
                 targetPoint = PhysicsUtils.rayTestLevelForPoint3f(PlayableState.level, castFromPoint, castToPoint);
 
-                if (!targetPoint.equals(castToPoint)) {
+                if (!targetPoint.equals(castToPoint) && MathUtils.quickLength(castFromPoint, targetPoint) <= MAX_RANGE) {
                     stage = STAGE_CASTING;
                     if (startCastTime == 0) {
                         startCastTime = GameTime.getCurrentMillis();
@@ -176,7 +183,7 @@ public class GroundExplosion implements Ability {
                 PlayerManager.PLAYER.getAng().y = angleToTarget.y;
                 Physics.lockPlayerAngles();
 
-                int desiredListSize = (int) (GameTime.getCurrentMillis() - startCastTime) / 10;
+                int desiredListSize = (int) (GameTime.getCurrentMillis() - startCastTime) / 2;
                 for (; particleCount < desiredListSize; particleCount++) {
                     float radiusMult = randomSeededGenerator.nextFloat();
                     float angleMult = randomSeededGenerator.nextFloat();

@@ -3,6 +3,7 @@ package com.requiem.particles;
 import com.requiem.Requiem;
 import com.requiem.abstractentities.GameCamera;
 import com.requiem.interfaces.Particle;
+import com.requiem.utilities.FastRandom;
 import com.requiem.utilities.GameTime;
 import com.requiem.utilities.MathUtils;
 import com.trentwdavies.textureloader.Texture;
@@ -20,7 +21,7 @@ public class GroundExplosionFlame implements Particle {
     public static final String SPRITE_SHEET_PATH = "assets/images/abilities/ground-explosion/fire-particles.png";
     public static Texture spriteSheet;
 
-    private static final float WIDTH = 0.5f;
+    private static final float WIDTH = 0.3f;
 
     private Point3f pos;
     private Vector3f vel;
@@ -30,6 +31,10 @@ public class GroundExplosionFlame implements Particle {
     private Point2f[] texCoords;
 
     private long spawnTime;
+
+    private static final int DEFAULT_LIFE_SPAN = 1500;
+    private static final int DEFAULT_LIFE_SPAN_VARIANCE = 200;
+    private int lifeSpan;
 
     private boolean init;
 
@@ -74,6 +79,26 @@ public class GroundExplosionFlame implements Particle {
     }
 
     @Override
+    public int getDefaultLifeSpan() {
+        return DEFAULT_LIFE_SPAN;
+    }
+
+    @Override
+    public int getDefaultLifeSpanVariance() {
+        return DEFAULT_LIFE_SPAN_VARIANCE;
+    }
+
+    @Override
+    public int getLifeSpan() {
+        return lifeSpan;
+    }
+
+    @Override
+    public void setLifeSpan(int lifeSpan) {
+        this.lifeSpan = lifeSpan;
+    }
+
+    @Override
     public boolean isDead() {
         return isDead;
     }
@@ -112,10 +137,11 @@ public class GroundExplosionFlame implements Particle {
         pos = new Point3f();
         vel = new Vector3f();
         spawnTime = GameTime.getCurrentMillis();
+        lifeSpan = (int) (DEFAULT_LIFE_SPAN + DEFAULT_LIFE_SPAN_VARIANCE * (FastRandom.random.nextFloat() * 2 - 1));
 
         texCoords = new Point2f[2];
         texCoords[0] = new Point2f(0, 0);
-        texCoords[1] = new Point2f(1f, 1f);
+        texCoords[1] = new Point2f(1f / 8, 1);
 
         init = true;
     }
@@ -125,10 +151,14 @@ public class GroundExplosionFlame implements Particle {
         if (!init)
             init();
 
+        int lifeStage = (int) ((GameTime.getCurrentMillis() - spawnTime) * 8 / lifeSpan);
+        texCoords[0] = new Point2f(lifeStage * 1f / 8, 0);
+        texCoords[1] = new Point2f((lifeStage + 1) * 1f / 8, 1);
+
         vel.y += 0.000005f * GameTime.getDeltaTime();
         pos.y += vel.y;
 
-        if (GameTime.getCurrentMillis() - spawnTime > 1000) {
+        if (lifeStage == 8) {
             isDead = true;
         }
     }

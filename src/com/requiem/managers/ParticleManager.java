@@ -1,19 +1,21 @@
 package com.requiem.managers;
 
 import com.requiem.Requiem;
+import com.requiem.abstractentities.entities.Player;
 import com.requiem.interfaces.Initializable;
 import com.requiem.interfaces.Particle;
 import com.requiem.interfaces.Updateable;
 import com.requiem.particles.GroundExplosionFlame;
 import com.requiem.utilities.AssetManager;
+import com.requiem.utilities.MathUtils;
 import com.trentwdavies.textureloader.Texture;
 
+import javax.vecmath.Point3d;
+import javax.vecmath.Point3f;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -57,16 +59,26 @@ public class ParticleManager {
     }
 
     public static void renderParticles() {
-        glAlphaFunc(GL_GREATER, 0.5f);
-        glEnable(GL_ALPHA_TEST);
-
         glEnable(GL_TEXTURE_2D);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-        GroundExplosionFlame.spriteSheet.bind();
+        Point3f camPos = Requiem.GAME_CAMERA.getPos();
+        TreeMap<Float, Particle> farthestToClosestParticles = new TreeMap<Float, Particle>();
         for (Particle particle : particleList) {
-            particle.render();
+            float dist = MathUtils.quickLength(camPos, particle.getPos());
+            farthestToClosestParticles.put(dist, particle);
         }
 
+        GroundExplosionFlame.spriteSheet.bind();//TODO do this correctly
+        Set<Float> distanceSet = farthestToClosestParticles.descendingKeySet();
+        Iterator<Float> distanceIterator = distanceSet.iterator();
+        while (distanceIterator.hasNext()) {
+            float nextDist = distanceIterator.next();
+            Particle curParticle = farthestToClosestParticles.get(nextDist);
+            curParticle.render();
+        }
+
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDisable(GL_TEXTURE_2D);
     }
 }

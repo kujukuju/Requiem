@@ -22,6 +22,11 @@ public interface Particle extends Updateable, Initializable {
     public long getSpawnTime();
     public void setSpawnTime(long spawnTime);
 
+    public int getDefaultLifeSpan();
+    public int getDefaultLifeSpanVariance();
+    public int getLifeSpan();
+    public void setLifeSpan(int lifeSpan);
+
     public boolean isDead();
 
     public void render();
