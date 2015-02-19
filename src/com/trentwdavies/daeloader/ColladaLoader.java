@@ -158,50 +158,50 @@ public class ColladaLoader {
             Element phongElement = (Element) phongNode;
 
             Node emissionNode = phongElement.getElementsByTagName("emission").item(0);
-            double[] emissionData = getEffectValueArray(emissionNode);
+            float[] emissionData = getEffectValueArray(emissionNode);
             curEffect.setEmission(emissionData);
 
             Node ambientNode = phongElement.getElementsByTagName("ambient").item(0);
-            double[] ambientData = getEffectValueArray(ambientNode);
+            float[] ambientData = getEffectValueArray(ambientNode);
             curEffect.setAmbient(ambientData);
 
             Node diffuseNode = phongElement.getElementsByTagName("diffuse").item(0);
-            double[] diffuseData = getEffectValueArray(diffuseNode);
+            float[] diffuseData = getEffectValueArray(diffuseNode);
             curEffect.setDiffuse(diffuseData);
 
             Node specularNode = phongElement.getElementsByTagName("specular").item(0);
-            double[] specularData = getEffectValueArray(specularNode);
+            float[] specularData = getEffectValueArray(specularNode);
             curEffect.setSpecular(specularData);
 
             Node shininessNode = phongElement.getElementsByTagName("shininess").item(0);
             Element shininessElement = (Element) shininessNode;
             Node shininessDataNode = shininessElement.getElementsByTagName("float").item(0);
-            double shininessData = Double.parseDouble(shininessDataNode.getTextContent());
+            float shininessData = Float.parseFloat(shininessDataNode.getTextContent());
             curEffect.setShininess(shininessData);
 
             Node transparencyNode = phongElement.getElementsByTagName("transparency").item(0);
             if (transparencyNode != null) {
                 Element transparencyElement = (Element) transparencyNode;
                 Node transparencyDataNode = transparencyElement.getElementsByTagName("float").item(0);
-                double transparencyData = Double.parseDouble(transparencyDataNode.getTextContent());
+                float transparencyData = Float.parseFloat(transparencyDataNode.getTextContent());
                 curEffect.setTransparency(transparencyData);
             }
         } else if (lambertNode != null) {
             Element lambertElement = (Element) lambertNode;
 
             Node emissionNode = lambertElement.getElementsByTagName("emission").item(0);
-            double[] emissionData = getEffectValueArray(emissionNode);
+            float[] emissionData = getEffectValueArray(emissionNode);
             curEffect.setEmission(emissionData);
 
             Node ambientNode = lambertElement.getElementsByTagName("ambient").item(0);
-            double[] ambientData = getEffectValueArray(ambientNode);
+            float[] ambientData = getEffectValueArray(ambientNode);
             curEffect.setAmbient(ambientData);
 
             Node diffuseNode = lambertElement.getElementsByTagName("diffuse").item(0);
-            double[] diffuseData = getEffectValueArray(diffuseNode);
+            float[] diffuseData = getEffectValueArray(diffuseNode);
             curEffect.setDiffuse(diffuseData);
 
-            double[] specularData = {1, 1, 1, 1};
+            float[] specularData = {1, 1, 1, 1};
             curEffect.setSpecular(specularData);
             curEffect.setShininess(0);
 
@@ -209,7 +209,7 @@ public class ColladaLoader {
             if (transparencyNode != null) {
                 Element transparencyElement = (Element) transparencyNode;
                 Node transparencyDataNode = transparencyElement.getElementsByTagName("float").item(0);
-                double transparencyData = Double.parseDouble(transparencyDataNode.getTextContent());
+                float transparencyData = Float.parseFloat(transparencyDataNode.getTextContent());
                 curEffect.setTransparency(transparencyData);
             }
         } else {
@@ -219,13 +219,13 @@ public class ColladaLoader {
         return curEffect;
     }
 
-    private static double[] getEffectValueArray(Node effectPartNode) {
+    private static float[] getEffectValueArray(Node effectPartNode) {
         Element effectPartElement = (Element) effectPartNode;
         Node effectColorNode = effectPartElement.getElementsByTagName("color").item(0);
         String[] colorStringArray = effectColorNode.getTextContent().split(" ");
-        double[] colorValueArray = new double[colorStringArray.length];
+        float[] colorValueArray = new float[colorStringArray.length];
         for (int a = 0; a < colorStringArray.length; a++) {
-            colorValueArray[a] = Double.parseDouble(colorStringArray[a]);
+            colorValueArray[a] = Float.parseFloat(colorStringArray[a]);
         }
 
         return colorValueArray;

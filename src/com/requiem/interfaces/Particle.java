@@ -29,5 +29,9 @@ public interface Particle extends Updateable, Initializable {
 
     public boolean isDead();
 
+    public Texture getTexture();
+
+    public int[] getBlendFunc();
+
     public void render();
 }

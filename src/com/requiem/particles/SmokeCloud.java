@@ -3,7 +3,6 @@ package com.requiem.particles;
 import com.requiem.Requiem;
 import com.requiem.abstractentities.GameCamera;
 import com.requiem.interfaces.Particle;
-import com.requiem.managers.ParticleManager;
 import com.requiem.utilities.FastRandom;
 import com.requiem.utilities.GameTime;
 import com.requiem.utilities.MathUtils;
@@ -16,28 +15,27 @@ import javax.vecmath.Vector3f;
 import static org.lwjgl.opengl.GL11.*;
 
 /**
- * Created by Trent on 2/9/2015.
+ * Created by Trent on 2/14/2015.
  */
-public class GroundExplosionFlame implements Particle {
-    public static final String SPRITE_SHEET_PATH = "assets/images/abilities/ground-explosion/fire-particles.png";
+public class SmokeCloud implements Particle {
+    public static final String SPRITE_SHEET_PATH = "assets/images/abilities/ground-explosion/smoke-particles.png";
     public static Texture spriteSheet;
 
-    private static final int[] BLEND_FUNC = {GL_SRC_ALPHA, GL_ONE};
+    private static final int[] BLEND_FUNC = {GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA};
 
-    private static final float WIDTH = 0.3f;
+    private static final float WIDTH = 1f;
+    private static final int ANIM_LENGTH = 32;
 
     private Point3f pos;
     private Vector3f vel;
 
     private boolean isDead;
 
-    private boolean willMakeSmoke;
-
     private Point2f[] texCoords;
 
     private long spawnTime;
 
-    private static final int DEFAULT_LIFE_SPAN = 1500;
+    private static final int DEFAULT_LIFE_SPAN = 1000;
     private static final int DEFAULT_LIFE_SPAN_VARIANCE = 200;
     private int lifeSpan;
 
@@ -132,18 +130,18 @@ public class GroundExplosionFlame implements Particle {
         rightVector.scale(WIDTH);
 
         glBegin(GL_QUADS);
-            //top right
-            glTexCoord2f(texCoords[1].x, texCoords[0].y);
-            glVertex3f(pos.x + upVector.x + rightVector.x, pos.y + upVector.y + rightVector.y, pos.z + upVector.z + rightVector.z);
-            //top left
-            glTexCoord2f(texCoords[0].x, texCoords[0].y);
-            glVertex3f(pos.x + upVector.x - rightVector.x, pos.y + upVector.y - rightVector.y, pos.z + upVector.z - rightVector.z);
-            //bottom left
-            glTexCoord2f(texCoords[0].x, texCoords[1].y);
-            glVertex3f(pos.x - upVector.x - rightVector.x, pos.y - upVector.y - rightVector.y, pos.z - upVector.z - rightVector.z);
-            //bottom right
-            glTexCoord2f(texCoords[1].x, texCoords[1].y);
-            glVertex3f(pos.x - upVector.x + rightVector.x, pos.y - upVector.y + rightVector.y, pos.z - upVector.z + rightVector.z);
+        //top right
+        glTexCoord2f(texCoords[1].x, texCoords[0].y);
+        glVertex3f(pos.x + upVector.x + rightVector.x, pos.y + upVector.y + rightVector.y, pos.z + upVector.z + rightVector.z);
+        //top left
+        glTexCoord2f(texCoords[0].x, texCoords[0].y);
+        glVertex3f(pos.x + upVector.x - rightVector.x, pos.y + upVector.y - rightVector.y, pos.z + upVector.z - rightVector.z);
+        //bottom left
+        glTexCoord2f(texCoords[0].x, texCoords[1].y);
+        glVertex3f(pos.x - upVector.x - rightVector.x, pos.y - upVector.y - rightVector.y, pos.z - upVector.z - rightVector.z);
+        //bottom right
+        glTexCoord2f(texCoords[1].x, texCoords[1].y);
+        glVertex3f(pos.x - upVector.x + rightVector.x, pos.y - upVector.y + rightVector.y, pos.z - upVector.z + rightVector.z);
         glEnd();
     }
 
@@ -154,11 +152,9 @@ public class GroundExplosionFlame implements Particle {
         spawnTime = GameTime.getCurrentMillis();
         lifeSpan = (int) (DEFAULT_LIFE_SPAN + DEFAULT_LIFE_SPAN_VARIANCE * (FastRandom.random.nextFloat() * 2 - 1));
 
-        willMakeSmoke = FastRandom.random.nextFloat() < 0.05;
-
         texCoords = new Point2f[2];
         texCoords[0] = new Point2f(0, 0);
-        texCoords[1] = new Point2f(1f / 16, 1);
+        texCoords[1] = new Point2f(1f / ANIM_LENGTH, 1f);
 
         init = true;
     }
@@ -168,28 +164,14 @@ public class GroundExplosionFlame implements Particle {
         if (!init)
             init();
 
-        int lifeStage = (int) ((GameTime.getCurrentMillis() - spawnTime) * 16 / lifeSpan);
-        texCoords[0] = new Point2f(lifeStage * 1f / 16, 0);
-        texCoords[1] = new Point2f((lifeStage + 1) * 1f / 16, 1);
+        int lifeStage = (int) ((GameTime.getCurrentMillis() - spawnTime) * ANIM_LENGTH / lifeSpan);
+        texCoords[0] = new Point2f(lifeStage * 1f / ANIM_LENGTH, 0);
+        texCoords[1] = new Point2f((lifeStage + 1) * 1f / ANIM_LENGTH, 1f);
 
-        if (willMakeSmoke && lifeStage >= 2 && FastRandom.random.nextFloat() < 0.002 * GameTime.getDeltaTime()) {
-            Particle currentParticle = new SmokeCloud();
-            currentParticle.init();
-            currentParticle.getPos().x = pos.x;
-            currentParticle.getPos().y = pos.y + 0.5f;
-            currentParticle.getPos().z = pos.z;
-            currentParticle.getVel().x = vel.x;
-            currentParticle.getVel().y = vel.y + 0.0025f;
-            currentParticle.getVel().z = vel.z;
-            ParticleManager.addParticle(currentParticle);
-
-            willMakeSmoke = false;
-        }
-
-        vel.y += 0.000005f * GameTime.getDeltaTime();
+        //vel.y += 0.000005f * GameTime.getDeltaTime();
         pos.y += vel.y;
 
-        if (lifeStage == 16) {
+        if (lifeStage == ANIM_LENGTH) {
             isDead = true;
         }
     }

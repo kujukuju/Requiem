@@ -3,6 +3,7 @@ package com.requiem.states;
 import com.requiem.Requiem;
 import com.requiem.abilities.Ability;
 import com.requiem.abilities.GroundExplosion;
+import com.requiem.abstractentities.GameCamera;
 import com.requiem.abstractentities.entities.enemies.Enemy;
 import com.requiem.Level;
 import com.requiem.abstractentities.entities.enemies.CuteCrab;
@@ -10,18 +11,20 @@ import com.requiem.abstractentities.pathfinding.PathLevel;
 import com.requiem.interfaces.State;
 import com.requiem.logic.AIProcessor;
 import com.requiem.logic.Physics;
-import com.requiem.managers.AbilityManager;
-import com.requiem.managers.EnemyManager;
-import com.requiem.managers.ParticleManager;
-import com.requiem.managers.PlayerManager;
+import com.requiem.managers.*;
 import com.requiem.overlays.ActionBar;
+import com.requiem.utilities.GameTime;
 import com.requiem.utilities.GraphicsUtils;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.util.glu.Sphere;
 
 import javax.vecmath.Point3f;
 
+import java.nio.FloatBuffer;
+
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL20.*;
 
 /**
  * Created by Trent on 10/24/2014.
@@ -80,21 +83,45 @@ public class PlayableState implements State {
     public void render() {
         glPushMatrix();
 
-        glRotated(-Requiem.GAME_CAMERA.ang.x, 1, 0, 0);
-        glRotated(-Requiem.GAME_CAMERA.ang.y, 0, 1, 0);
-        glRotated(-Requiem.GAME_CAMERA.ang.z, 0, 0, 1);
-        glTranslated(-Requiem.GAME_CAMERA.pos.x, -Requiem.GAME_CAMERA.pos.y, -Requiem.GAME_CAMERA.pos.z);
+        glRotated(-GameCamera.ang.x, 1, 0, 0);
+        glRotated(-GameCamera.ang.y, 0, 1, 0);
+        glRotated(-GameCamera.ang.z, 0, 0, 1);
+        glTranslated(-GameCamera.pos.x, -GameCamera.pos.y, -GameCamera.pos.z);
 
-        float[] pos = {-20, 20, -14, 1};
-        glLight(GL_LIGHT0, GL_POSITION, GraphicsUtils.flippedFloatBuffer(pos));
-        float[] diff = {1f, 1f, 1f, 1};
-        glLight(GL_LIGHT0, GL_DIFFUSE, GraphicsUtils.flippedFloatBuffer(diff));
-        float[] amb = {0.05f, 0.05f, 0.05f, 1};
-        glLight(GL_LIGHT0, GL_AMBIENT, GraphicsUtils.flippedFloatBuffer(amb));
+        ShaderManager.helloWorldShader.use();
+        /*int lightTypeLoc = glGetUniformLocation(ShaderManager.helloWorldShader.shaderProgram, "lightType");
+        glUniform1i(lightTypeLoc, 1);
+        int lightModelViewMatrixLoc = glGetUniformLocation(ShaderManager.helloWorldShader.shaderProgram, "lightModelViewMatrix");
+        FloatBuffer lightModelViewMatrix = BufferUtils.createFloatBuffer(16);
+        glGetFloat(GL_MODELVIEW_MATRIX, lightModelViewMatrix);
+        glUniformMatrix4(lightModelViewMatrixLoc, false, lightModelViewMatrix);
+        int lightDirPosLoc = glGetUniformLocation(ShaderManager.helloWorldShader.shaderProgram, "lightDirPos");
+        glUniform3f(lightDirPosLoc, 5, 7, 1);
+        int lightDiffuseLoc = glGetUniformLocation(ShaderManager.helloWorldShader.shaderProgram, "lightDiffuse");
+        glUniform4f(lightDiffuseLoc, 1f, 0f, 1f, 1f);
+        int lightAmbientLoc = glGetUniformLocation(ShaderManager.helloWorldShader.shaderProgram, "lightAmbient");
+        glUniform4f(lightAmbientLoc, 0.05f, 0.05f, 0.05f, 1f);
+        int lightSpecularLoc = glGetUniformLocation(ShaderManager.helloWorldShader.shaderProgram, "lightSpecular");
+        glUniform4f(lightSpecularLoc, 1f, 1f, 1f, 1f);*/
+        int lightTypeLoc = glGetUniformLocation(ShaderManager.helloWorldShader.shaderProgram, "lightType");
+        glUniform1i(lightTypeLoc, 0);
+        int lightModelViewMatrixLoc = glGetUniformLocation(ShaderManager.helloWorldShader.shaderProgram, "lightModelViewMatrix");
+        FloatBuffer lightModelViewMatrix = BufferUtils.createFloatBuffer(16);
+        glGetFloat(GL_MODELVIEW_MATRIX, lightModelViewMatrix);
+        glUniformMatrix4(lightModelViewMatrixLoc, false, lightModelViewMatrix);
+        int lightDirPosLoc = glGetUniformLocation(ShaderManager.helloWorldShader.shaderProgram, "lightDirPos");
+        glUniform3f(lightDirPosLoc, -0.57735f, 0.57735f, -0.57735f);
+        int lightDiffuseLoc = glGetUniformLocation(ShaderManager.helloWorldShader.shaderProgram, "lightDiffuse");
+        glUniform4f(lightDiffuseLoc, 1f, 1f, 1f, 1f);
+        int lightAmbientLoc = glGetUniformLocation(ShaderManager.helloWorldShader.shaderProgram, "lightAmbient");
+        glUniform4f(lightAmbientLoc, 0.05f, 0.05f, 0.05f, 1f);
+        int lightSpecularLoc = glGetUniformLocation(ShaderManager.helloWorldShader.shaderProgram, "lightSpecular");
+        glUniform4f(lightSpecularLoc, 1f, 1f, 1f, 1f);
 
         level.render();
         PlayerManager.PLAYER.render();
         EnemyManager.renderEnemies();
+        ShaderManager.useNoShader();
         AbilityManager.renderAbilities();
         ParticleManager.renderParticles();
 

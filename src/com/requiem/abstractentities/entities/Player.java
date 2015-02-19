@@ -22,7 +22,7 @@ import static org.lwjgl.opengl.GL11.*;
  * Created by Trent on 10/24/2014.
  */
 public class Player implements Collidable, Moveable {
-    public static final String MODEL_PATH = "assets/models/test-character.dae";
+    public static final String MODEL_PATH = "assets/models/test-character-cube.dae";
 
     private Model model;
     private CollisionShape collisionShape;
@@ -60,7 +60,7 @@ public class Player implements Collidable, Moveable {
         collisionShape.calculateLocalInertia(MASS, localInertia);
         createRigidBody();
 
-        setPos(new Point3f(5, 2, 1));
+        setPos(new Point3f(5, 7, 1));
     }
 
     @Override

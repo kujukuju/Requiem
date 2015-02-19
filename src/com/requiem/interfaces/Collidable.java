@@ -8,7 +8,7 @@ import com.trentwdavies.daeloader.Model;
 /**
  * Created by Trent on 11/29/2014.
  */
-public interface Collidable {
+public interface Collidable extends Initializable {
     public void createRigidBody();
     public void addToDynamicsWorld(DynamicsWorld dynamicsWorld);
 

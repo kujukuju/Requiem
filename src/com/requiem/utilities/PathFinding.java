@@ -1,6 +1,7 @@
 package com.requiem.utilities;
 
 import com.requiem.Requiem;
+import com.requiem.abstractentities.GameCamera;
 import com.requiem.abstractentities.pathfinding.PathConvexShape;
 import com.requiem.abstractentities.pathfinding.PathLevel;
 import com.requiem.abstractentities.pathfinding.PathVertex;
@@ -68,21 +69,21 @@ public class PathFinding {
             endShapeVertices.add(curPathVertex);
         }
 
-        glPushMatrix();
-        glRotated(-Requiem.GAME_CAMERA.ang.x, 1, 0, 0);
-        glRotated(-Requiem.GAME_CAMERA.ang.y, 0, 1, 0);
-        glRotated(-Requiem.GAME_CAMERA.ang.z, 0, 0, 1);
-        glTranslated(-Requiem.GAME_CAMERA.pos.x, -Requiem.GAME_CAMERA.pos.y, -Requiem.GAME_CAMERA.pos.z);
-        glColor4f(1, 1, 0, 1);
-        Sphere sphere = new Sphere();
-        for (int i : endShape.vertexIndexPointer) {
-            PathVertex pv = endShape.parentMesh.pathVertexList.get(i);
-            glPushMatrix();
-            glTranslatef(pv.x, pv.y, pv.z);
-            sphere.draw(0.3f, 16, 16);
-            glPopMatrix();
-        }
-        glPopMatrix();
+glPushMatrix();
+glRotated(-GameCamera.ang.x, 1, 0, 0);
+glRotated(-GameCamera.ang.y, 0, 1, 0);
+glRotated(-GameCamera.ang.z, 0, 0, 1);
+glTranslated(-GameCamera.pos.x, -GameCamera.pos.y, -GameCamera.pos.z);
+glColor4f(1, 1, 0, 1);
+Sphere sphere = new Sphere();
+for (int i : endShape.vertexIndexPointer) {
+    PathVertex pv = endShape.parentMesh.pathVertexList.get(i);
+    glPushMatrix();
+    glTranslatef(pv.x, pv.y, pv.z);
+    sphere.draw(0.3f, 16, 16);
+    glPopMatrix();
+}
+glPopMatrix();
 
         //if theres a max value the little dude can go before he gives up, make this it
         double shortestPathLength = Short.MAX_VALUE;

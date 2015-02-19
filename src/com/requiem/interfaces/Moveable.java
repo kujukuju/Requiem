@@ -6,7 +6,7 @@ import com.requiem.abstractentities.entities.Entity;
  * Created by Trent on 2/2/2015.
  */
 //a moveable is an entity that can move in the dynamics world
-public interface Moveable extends Entity {
+public interface Moveable extends Entity, Updateable {
     public float getMass();
     public void setMass(float mass);
 

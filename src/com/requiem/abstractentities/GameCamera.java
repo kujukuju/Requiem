@@ -4,6 +4,8 @@ package com.requiem.abstractentities;
  * Created by Trent on 10/25/2014.
  */
 
+import com.requiem.interfaces.Initializable;
+import com.requiem.interfaces.Updateable;
 import com.requiem.managers.SettingsManager;
 import org.lwjgl.util.glu.GLU;
 
@@ -17,30 +19,28 @@ import static org.lwjgl.opengl.GL11.*;
 /**
  * Created by Trent on 10/24/2014.
  */
-public class GameCamera implements AbstractEntity {
-    public Point3f pos;
-    public Point3f targetPos;
-    public Vector3f ang;
-    public Vector3f vel;
+public class GameCamera {
+    public static Point3f pos;
+    public static Point3f targetPos;
+    public static Vector3f ang;
+    public static Vector3f vel;
 
     public static float fieldOfView = 65f;
     public static float zNear = 1f;
     public static float zFar = 1000f;
 
-    @Override
-    public void init() {
+    public static void init() {
         pos = new Point3f();
         targetPos = new Point3f();
         ang = new Vector3f();
         vel = new Vector3f();
     }
 
-    @Override
-    public void update() {
+    public static void update() {
 
     }
 
-    public void lookAt(Point3f point3f) {
+    public static void lookAt(Point3f point3f) {
         //TODO can I do this without a square root???
         //TODO use mathutils angle thing
         double xDist = point3f.x - pos.x;
@@ -54,7 +54,7 @@ public class GameCamera implements AbstractEntity {
         ang.y = (float) Math.toDegrees(Math.atan2(-xDist, -zDist));
     }
 
-    public void lookAt(float x, float y, float z) {
+    public static void lookAt(float x, float y, float z) {
         lookAt(new Point3f(x, y, z));
     }
 
@@ -68,33 +68,27 @@ public class GameCamera implements AbstractEntity {
         glLoadIdentity();
     }
 
-    @Override
-    public Point3f getPos() {
+    public static Point3f getPos() {
         return pos;
     }
 
-    @Override
-    public void setPos(Point3f pos) {
-        this.pos = pos;
+    public static void setPos(Point3f pos) {
+        GameCamera.pos = pos;
     }
 
-    @Override
-    public Vector3f getVel() {
+    public static Vector3f getVel() {
         return vel;
     }
 
-    @Override
-    public void setVel(Vector3f vel) {
-        this.vel = vel;
+    public static void setVel(Vector3f vel) {
+        GameCamera.vel = vel;
     }
 
-    @Override
-    public Vector3f getAng() {
+    public static Vector3f getAng() {
         return ang;
     }
 
-    @Override
-    public void setAng(Vector3f ang) {
-        this.ang = ang;
+    public static void setAng(Vector3f ang) {
+        GameCamera.ang = ang;
     }
 }

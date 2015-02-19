@@ -2,6 +2,7 @@ package com.requiem.states;
 
 import com.requiem.Requiem;
 import com.requiem.Level;
+import com.requiem.abstractentities.GameCamera;
 import com.requiem.interfaces.State;
 import com.requiem.listeners.GameInput;
 import com.requiem.managers.FontManager;
@@ -50,8 +51,8 @@ public class TitleScreenState implements State {
     public void init() {
         level = new Level(LEVEL_FILE_PATH);
 
-        Requiem.GAME_CAMERA.pos.set(CAM_POS);
-        Requiem.GAME_CAMERA.lookAt(0, 2, 0);
+        GameCamera.pos.set(CAM_POS);
+        GameCamera.lookAt(0, 2, 0);
 
         init = true;
     }
@@ -91,10 +92,10 @@ public class TitleScreenState implements State {
     public void render() {
         glPushMatrix();
 
-        glRotated(-Requiem.GAME_CAMERA.ang.x, 1, 0, 0);
-        glRotated(-Requiem.GAME_CAMERA.ang.y, 0, 1, 0);
-        glRotated(-Requiem.GAME_CAMERA.ang.z, 0, 0, 1);
-        glTranslated(-Requiem.GAME_CAMERA.pos.x, -Requiem.GAME_CAMERA.pos.y, -Requiem.GAME_CAMERA.pos.z);
+        glRotated(-GameCamera.ang.x, 1, 0, 0);
+        glRotated(-GameCamera.ang.y, 0, 1, 0);
+        glRotated(-GameCamera.ang.z, 0, 0, 1);
+        glTranslated(-GameCamera.pos.x, -GameCamera.pos.y, -GameCamera.pos.z);
 
         float[] pos = {-20, 20, -14, 1};
         glLight(GL_LIGHT0, GL_POSITION, GraphicsUtils.flippedFloatBuffer(pos));

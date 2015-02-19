@@ -12,7 +12,7 @@ import javax.vecmath.Vector3f;
 /**
  * Created by Trent on 10/24/2014.
  */
-public interface AbstractEntity extends Initializable, Updateable {
+public interface AbstractEntity {
     public Point3f getPos();
     public void setPos(Point3f pos);
     public Vector3f getVel();

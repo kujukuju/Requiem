@@ -1,55 +1,63 @@
 package com.trentwdavies.daeloader;
 
+import org.lwjgl.BufferUtils;
+
+import java.nio.FloatBuffer;
+
 /**
  * Created by Trent on 11/16/2014.
  */
 public class Effect {
-    public double[] emission;
-    public double[] ambient;
-    public double[] diffuse;
-    public double[] specular;
-    public double shininess;
-    public double transparency;
+    public FloatBuffer emission;
+    public FloatBuffer ambient;
+    public FloatBuffer diffuse;
+    public FloatBuffer specular;
+    public float shininess;
+    public float transparency;
 
     public Effect() {
-        emission = new double[4];
-        ambient = new double[4];
-        diffuse = new double[4];
-        specular = new double[4];
+        emission = BufferUtils.createFloatBuffer(4);
+        ambient = BufferUtils.createFloatBuffer(4);
+        diffuse = BufferUtils.createFloatBuffer(4);
+        specular = BufferUtils.createFloatBuffer(4);
         transparency = 1;
     }
 
-    public void setEmission(double[] emission) {
-        this.emission = emission;
+    public void setEmission(float[] emission) {
+        this.emission.put(emission);
+        this.emission.flip();
     }
 
-    public void setAmbient(double[] ambient) {
-        this.ambient = ambient;
+    public void setAmbient(float[] ambient) {
+        this.ambient.put(ambient);
+        this.ambient.flip();
     }
 
-    public void setDiffuse(double[] diffuse) {
-        this.diffuse = diffuse;
+    public void setDiffuse(float[] diffuse) {
+        this.diffuse.put(diffuse);
+        this.diffuse.flip();
     }
 
-    public void setSpecular(double[] specular) {
-        this.specular = specular;
+    public void setSpecular(float[] specular) {
+        this.specular.put(specular);
+        this.specular.flip();
     }
 
-    public void setShininess(double shininess) {
+    public void setShininess(float shininess) {
         this.shininess = shininess;
     }
 
-    public void setTransparency(double transparency) {
+    public void setTransparency(float transparency) {
         this.transparency = transparency;
     }
 
     public Effect clone() {
         Effect newEffect = new Effect();
 
-        newEffect.setEmission(emission);
-        newEffect.setAmbient(ambient);
-        newEffect.setDiffuse(diffuse);
-        newEffect.setSpecular(specular);
+        newEffect.setEmission(emission.array());
+        newEffect.setAmbient(ambient.array());
+        newEffect.setDiffuse(diffuse.array());
+        newEffect.setSpecular(specular.array());
         newEffect.setShininess(shininess);
         newEffect.setTransparency(transparency);
 
@@ -57,7 +65,7 @@ public class Effect {
     }
 
     public String toString() {
-        return "emission: " + emission[0] + " " + emission[1] + " " + emission[2] + " " + emission[3]
-                + ", specular: " + specular[0] + " " + specular[1] + " " + specular[2] + " " + specular[3];
+        return "emission: " + emission.array()[0] + " " + emission.array()[1] + " " + emission.array()[2] + " " + emission.array()[3]
+                + ", specular: " + specular.array()[0] + " " + specular.array()[1] + " " + specular.array()[2] + " " + specular.array()[3];
     }
 }

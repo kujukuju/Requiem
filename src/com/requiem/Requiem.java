@@ -6,11 +6,9 @@ import com.requiem.abstractentities.entities.Player;
 import com.requiem.abstractentities.entities.enemies.CuteCrab;
 import com.requiem.interfaces.State;
 import com.requiem.listeners.GameInput;
-import com.requiem.managers.AbilityManager;
-import com.requiem.managers.FontManager;
-import com.requiem.managers.SettingsManager;
-import com.requiem.managers.StateManager;
+import com.requiem.managers.*;
 import com.requiem.particles.GroundExplosionFlame;
+import com.requiem.particles.SmokeCloud;
 import com.requiem.states.PlayableState;
 import com.requiem.states.TitleScreenState;
 import com.requiem.utilities.AssetManager;
@@ -24,13 +22,10 @@ import java.util.Random;
 import static org.lwjgl.opengl.GL11.*;
 
 public class Requiem {
-    public static final GameCamera GAME_CAMERA = new GameCamera();
-
     public static boolean running;
 
     public Requiem() {
         SettingsManager.loadSettings();
-        int[] resolution = SettingsManager.getResolution();
         updateResolution();
         loadLoadingScreen();
 
@@ -67,13 +62,15 @@ public class Requiem {
 
         AssetManager.queue(AbilityManager.ABILITY_ICON_TEXTURES_PATH, Texture.class);
         AssetManager.queue(GroundExplosionFlame.SPRITE_SHEET_PATH, Texture.class);
+        AssetManager.queue(SmokeCloud.SPRITE_SHEET_PATH, Texture.class);
 
         AssetManager.load();
         AssetManager.pauseWhileLoading();
+
+        ShaderManager.loadShaders();
     }
 
     public void init() {
-        int[] resolution = SettingsManager.getResolution();
         //StateManager.setState(StateManager.STATE_TITLE_SCREEN);
         StateManager.setState(StateManager.STATE_PLAYABLE);
 
@@ -84,17 +81,14 @@ public class Requiem {
         glEnable(GL_POLYGON_SMOOTH);
         glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
 
-        glShadeModel(GL_FLAT);
         glEnable(GL_DEPTH_TEST);
-        glEnable(GL_LIGHTING);
-        glEnable(GL_LIGHT0);
 
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
         glEnable(GL_COLOR_MATERIAL);
         glColorMaterial(GL_FRONT, GL_DIFFUSE);
 
-        GAME_CAMERA.init();
+        GameCamera.init();
         FontManager.init();
     }
 

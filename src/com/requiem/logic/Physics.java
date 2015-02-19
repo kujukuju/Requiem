@@ -4,6 +4,7 @@ import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.dispatch.CollisionWorld;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.requiem.Requiem;
+import com.requiem.abstractentities.GameCamera;
 import com.requiem.abstractentities.entities.Entity;
 import com.requiem.abstractentities.entities.enemies.Enemy;
 import com.requiem.Level;
@@ -315,7 +316,7 @@ public class Physics {
         camPos.z = (float) (player.getPos().z + Math.cos(-yaw) * camDistance * Math.cos(pitch));
         camPos.y = (float) (player.getPos().y + Math.sin(pitch) * camDistance);
 
-        Requiem.GAME_CAMERA.pos.set(camPos);
-        Requiem.GAME_CAMERA.lookAt(player.getPos());
+        GameCamera.pos.set(camPos);
+        GameCamera.lookAt(player.getPos());
     }
 }
