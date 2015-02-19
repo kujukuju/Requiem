@@ -9,8 +9,8 @@ import static org.lwjgl.opengl.GL20.glUseProgram;
  */
 public class ShaderManager {
     public static Shader helloWorldShader;
-    public static final String HELLO_WORLD_SHADER_VERT_PATH = "assets/shaders/hello-world.vert";
-    public static final String HELLO_WORLD_SHADER_FRAG_PATH = "assets/shaders/hello-world.frag";
+    public static final String HELLO_WORLD_SHADER_VERT_PATH = "assets/shaders/lighting.vert";
+    public static final String HELLO_WORLD_SHADER_FRAG_PATH = "assets/shaders/lighting.frag";
 
     public static void loadShaders() {
         helloWorldShader = new Shader(HELLO_WORLD_SHADER_VERT_PATH, HELLO_WORLD_SHADER_FRAG_PATH);

@@ -1,6 +1,7 @@
 uniform int lightType;
 uniform mat4 lightModelViewMatrix;
-uniform vec3 lightDirPos;
+uniform vec3 lightPos;
+uniform vec3 lightDir;
 uniform vec4 lightDiffuse;
 uniform vec4 lightAmbient;
 uniform vec4 lightSpecular;
@@ -22,12 +23,12 @@ void main() {
 
         vec3 newVertToEyeVector = normalize(vec3(-gl_ModelViewMatrix * gl_Vertex));
 
-        vec3 lightDir = normalize(lightModelViewMatrix * vec4(lightDirPos, 0));
-        halfVector = vec3(lightDir + newVertToEyeVector);
+        vec3 newLightDir = normalize(lightModelViewMatrix * vec4(lightDir, 0));
+        halfVector = vec3(newLightDir + newVertToEyeVector);
 
         ambient += gl_LightModel.ambient * gl_FrontMaterial.ambient;
-    //point
-    } else if (lightType == 1) {
+    //point or spotlight
+    } else if (lightType == 1 || lightType == 2) {
         vec3 pos = gl_ModelViewMatrix * gl_Vertex;
 
         //compute the direction to eye vector and normalize it
@@ -40,10 +41,10 @@ void main() {
         vertexPos = gl_ModelViewMatrix * gl_Vertex;
 
         //calculate the light position in camera space
-        vec4 lightPos = lightModelViewMatrix * vec4(lightDirPos, 1); //TODO is it necessary to make it vec4? maybe use normal matrix?
+        vec4 newLightPos = lightModelViewMatrix * vec4(lightPos, 1); //TODO is it necessary to make it vec4? maybe use normal matrix?
 
         //calculate the vector from vertex to light
-        vec4 lightToVertVector = normalize(vertexPos - lightPos); //TODO might be backwards
+        vec4 lightToVertVector = normalize(vertexPos - newLightPos); //TODO might be backwards
 
         //the halfway vector between the eye dir and the light dir
         halfVector = vec3(lightToVertVector.x, lightToVertVector.y, lightToVertVector.z) + vertToEyeVector; //for directional
