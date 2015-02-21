@@ -19,12 +19,16 @@ import static org.lwjgl.opengl.GL11.*;
  * Created by Trent on 2/9/2015.
  */
 public class GroundExplosionFlame implements Particle {
-    public static final String SPRITE_SHEET_PATH = "assets/images/abilities/ground-explosion/fire-particles.png";
+    public static final String SPRITE_SHEET_PATH = "assets/images/abilities/ground-explosion/fire-particles-2.png";
     public static Texture spriteSheet;
 
     private static final int[] BLEND_FUNC = {GL_SRC_ALPHA, GL_ONE};
 
-    private static final float WIDTH = 0.3f;
+    private static final float WIDTH = 0.4f;
+    private static final int ANIM_LENGTH = 16;
+    private static final int ANIM_HEIGHT = 4;
+
+    private int animHeight;
 
     private Point3f pos;
     private Vector3f vel;
@@ -37,7 +41,7 @@ public class GroundExplosionFlame implements Particle {
 
     private long spawnTime;
 
-    private static final int DEFAULT_LIFE_SPAN = 1500;
+    private static final int DEFAULT_LIFE_SPAN = 600;
     private static final int DEFAULT_LIFE_SPAN_VARIANCE = 200;
     private int lifeSpan;
 
@@ -155,6 +159,7 @@ public class GroundExplosionFlame implements Particle {
         lifeSpan = (int) (DEFAULT_LIFE_SPAN + DEFAULT_LIFE_SPAN_VARIANCE * (FastRandom.random.nextFloat() * 2 - 1));
 
         willMakeSmoke = FastRandom.random.nextFloat() < 0.05;
+        animHeight = FastRandom.random.nextInt(ANIM_HEIGHT);
 
         texCoords = new Point2f[2];
         texCoords[0] = new Point2f(0, 0);
@@ -168,11 +173,11 @@ public class GroundExplosionFlame implements Particle {
         if (!init)
             init();
 
-        int lifeStage = (int) ((GameTime.getCurrentMillis() - spawnTime) * 16 / lifeSpan);
-        texCoords[0] = new Point2f(lifeStage * 1f / 16, 0);
-        texCoords[1] = new Point2f((lifeStage + 1) * 1f / 16, 1);
+        int lifeStage = (int) ((GameTime.getCurrentMillis() - spawnTime) * ANIM_LENGTH / lifeSpan);
+        texCoords[0] = new Point2f(lifeStage * 1f / ANIM_LENGTH, (float) animHeight / ANIM_HEIGHT);
+        texCoords[1] = new Point2f((lifeStage + 1) * 1f / ANIM_LENGTH, (float) (animHeight + 1) / ANIM_HEIGHT);
 
-        if (willMakeSmoke && lifeStage >= 2 && FastRandom.random.nextFloat() < 0.002 * GameTime.getDeltaTime()) {
+        /*if (willMakeSmoke && lifeStage >= 2 && FastRandom.random.nextFloat() < 0.002 * GameTime.getDeltaTime()) {
             Particle currentParticle = new SmokeCloud();
             currentParticle.init();
             currentParticle.getPos().x = pos.x;
@@ -184,9 +189,9 @@ public class GroundExplosionFlame implements Particle {
             ParticleManager.addParticle(currentParticle);
 
             willMakeSmoke = false;
-        }
+        }*/
 
-        vel.y += 0.000005f * GameTime.getDeltaTime();
+        vel.y += 0.000009f * GameTime.getDeltaTime();
         pos.y += vel.y;
 
         if (lifeStage == 16) {

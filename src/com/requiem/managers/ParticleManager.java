@@ -3,17 +3,22 @@ package com.requiem.managers;
 import com.requiem.Requiem;
 import com.requiem.abstractentities.GameCamera;
 import com.requiem.abstractentities.entities.Player;
+import com.requiem.effects.lights.PointLight;
 import com.requiem.interfaces.Initializable;
+import com.requiem.interfaces.Light;
 import com.requiem.interfaces.Particle;
 import com.requiem.interfaces.Updateable;
 import com.requiem.particles.GroundExplosionFlame;
 import com.requiem.particles.SmokeCloud;
 import com.requiem.utilities.AssetManager;
+import com.requiem.utilities.FastRandom;
 import com.requiem.utilities.MathUtils;
 import com.trentwdavies.textureloader.Texture;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Point3f;
+import javax.vecmath.Point4f;
+import javax.vecmath.Vector4f;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -25,6 +30,7 @@ import static org.lwjgl.opengl.GL11.*;
  * Created by Trent on 2/9/2015.
  */
 public class ParticleManager {
+public static Light fireLight;
     public static List<Particle> particleList;
 
     private static List<Particle> toBeAddedParticleList;
@@ -43,6 +49,10 @@ public class ParticleManager {
     public static void update() {
         if (!init)
             init();
+
+        if (fireLight != null) {
+            fireLight.setLightDiffuse(new Vector4f((0.2f + FastRandom.random.nextFloat() / 20 - 0.025f) * particleList.size() / 60, (0.08f + FastRandom.random.nextFloat() / 50 - 0.001f) * particleList.size() / 60, 0, 1));
+        }
 
         particleList.addAll(toBeAddedParticleList);
         toBeAddedParticleList.clear();

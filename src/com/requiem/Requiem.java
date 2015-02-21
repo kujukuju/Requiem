@@ -4,6 +4,10 @@ import com.requiem.abilities.GroundExplosion;
 import com.requiem.abstractentities.GameCamera;
 import com.requiem.abstractentities.entities.Player;
 import com.requiem.abstractentities.entities.enemies.CuteCrab;
+import com.requiem.effects.lights.DirectionalLight;
+import com.requiem.effects.lights.PointLight;
+import com.requiem.effects.lights.SpotLight;
+import com.requiem.interfaces.Light;
 import com.requiem.interfaces.State;
 import com.requiem.listeners.GameInput;
 import com.requiem.managers.*;
@@ -17,6 +21,9 @@ import com.trentwdavies.daeloader.Model;
 import com.trentwdavies.textureloader.Texture;
 import org.lwjgl.opengl.Display;
 
+import javax.vecmath.Point4f;
+import javax.vecmath.Vector3f;
+import javax.vecmath.Vector4f;
 import java.util.Random;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -90,6 +97,18 @@ public class Requiem {
 
         GameCamera.init();
         FontManager.init();
+
+        //TODO remove later
+        //Light spotLight = new SpotLight(new Point4f(1, 3, 1, 1), new Vector4f(0, 0, 1, 0), new Vector4f(1, 0, 0, 1));
+        //LightManager.addLight(spotLight);
+        //Light spotLight2 = new SpotLight(new Point4f(5, 3, 1, 1), new Vector4f(0, 0, 1, 0), new Vector4f(0, 0, 1, 1));
+        //LightManager.addLight(spotLight2);
+        Light pointLight = new PointLight(new Point4f(3, 15, 6, 1), new Vector4f(1, 1, 1, 1));
+        LightManager.addLight(pointLight);
+        Light pointLight2 = new PointLight(new Point4f(10, 15, -10, 1), new Vector4f(1, 1, 1, 1));
+        LightManager.addLight(pointLight2);
+        Light dirLight = new DirectionalLight(new Vector4f(-0.57735f, 0.57735f, -0.57735f, 0f), new Vector4f(1, 0.9f, 0.8f, 1));
+        LightManager.addLight(dirLight);
     }
 
     public void update(State currentState) {

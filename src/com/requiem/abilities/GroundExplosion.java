@@ -1,8 +1,10 @@
 package com.requiem.abilities;
 
+import com.requiem.effects.lights.PointLight;
 import com.requiem.interfaces.Particle;
 import com.requiem.listeners.GameInput;
 import com.requiem.logic.Physics;
+import com.requiem.managers.LightManager;
 import com.requiem.managers.ParticleManager;
 import com.requiem.managers.PlayerManager;
 import com.requiem.particles.GroundExplosionFlame;
@@ -12,7 +14,9 @@ import com.requiem.utilities.MathUtils;
 import com.requiem.utilities.PhysicsUtils;
 
 import javax.vecmath.Point3f;
+import javax.vecmath.Point4f;
 import javax.vecmath.Vector3f;
+import javax.vecmath.Vector4f;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -183,7 +187,12 @@ public class GroundExplosion implements Ability {
                 PlayerManager.PLAYER.getAng().y = angleToTarget.y;
                 Physics.lockPlayerAngles();
 
-                int desiredListSize = (int) (GameTime.getCurrentMillis() - startCastTime) / 2;
+if (ParticleManager.fireLight == null) {
+    ParticleManager.fireLight = new PointLight(new Point4f(targetPoint.x, targetPoint.y + 1.6f, targetPoint.z, 1), new Vector4f(0.2f, 0.08f, 0, 1));
+    LightManager.addLight(ParticleManager.fireLight);
+}
+
+                int desiredListSize = (int) (GameTime.getCurrentMillis() - startCastTime) / 10;
                 for (; particleCount < desiredListSize; particleCount++) {
                     float radiusMult = randomSeededGenerator.nextFloat();
                     float angleMult = randomSeededGenerator.nextFloat();
@@ -194,6 +203,7 @@ public class GroundExplosion implements Ability {
                     currentParticle.getPos().x = (float) (targetPoint.x + Math.cos(angle) * radius);
                     currentParticle.getPos().y = targetPoint.y;
                     currentParticle.getPos().z = (float) (targetPoint.z + Math.sin(angle) * radius);
+                    currentParticle.getVel().y = 0.01f;
                     ParticleManager.addParticle(currentParticle);
                 }
 

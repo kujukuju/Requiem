@@ -26,7 +26,7 @@ public class GameCamera {
     public static Vector3f vel;
 
     public static float fieldOfView = 65f;
-    public static float zNear = 1f;
+    public static float zNear = 0.2f;
     public static float zFar = 1000f;
 
     public static void init() {

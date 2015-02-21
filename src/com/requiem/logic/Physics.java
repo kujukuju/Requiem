@@ -312,11 +312,18 @@ public class Physics {
 
         float camDistance = 5;
         Vector3f camPos = new Vector3f();
-        camPos.x = (float) (player.getPos().x + Math.sin(-yaw) * camDistance * Math.cos(pitch));
-        camPos.z = (float) (player.getPos().z + Math.cos(-yaw) * camDistance * Math.cos(pitch));
-        camPos.y = (float) (player.getPos().y + Math.sin(pitch) * camDistance);
+        //camPos.x = (float) (player.getPos().x + Math.sin(yaw + 90) * camDistance * Math.cos(pitch));
+        //camPos.z = (float) (player.getPos().z + Math.cos(yaw + 90) * camDistance * Math.cos(pitch));
+        //camPos.y = (float) (player.getPos().y + Math.sin(pitch) * camDistance);
+        camPos.x = (float) (player.getPos().x + Math.sin(-yaw + Math.PI / 2) * 1.5 * 0 + Math.sin(-yaw) * 2.0 * 0);
+        camPos.y = (float) (player.getPos().y + 1.3);
+        camPos.z = (float) (player.getPos().z + Math.cos(-yaw + Math.PI / 2) * 1.5 * 0 + Math.cos(-yaw) * 2.0 * 0);
+
+        Vector3f camAng = new Vector3f(player.getAng());
+        camAng.scale(-1);
 
         GameCamera.pos.set(camPos);
-        GameCamera.lookAt(player.getPos());
+        GameCamera.setAng(camAng);
+        //GameCamera.lookAt(player.getPos());
     }
 }
