@@ -1,5 +1,6 @@
 package com.requiem.abilities;
 
+import com.requiem.interfaces.ParticleEmitter;
 import com.requiem.interfaces.Renderable;
 import com.requiem.interfaces.Updateable;
 import com.trentwdavies.textureloader.Texture;
@@ -33,6 +34,8 @@ public interface Ability extends Renderable, Updateable {
     public int getRemainingCharges();
 
     public float getMaxRange();
+
+    public ParticleEmitter getParticleEmitter();
 
     public int getTotalCooldown();
     public int getRemainingCooldown();

@@ -4,10 +4,7 @@ import com.requiem.Requiem;
 import com.requiem.abstractentities.GameCamera;
 import com.requiem.abstractentities.entities.Player;
 import com.requiem.effects.lights.PointLight;
-import com.requiem.interfaces.Initializable;
-import com.requiem.interfaces.Light;
-import com.requiem.interfaces.Particle;
-import com.requiem.interfaces.Updateable;
+import com.requiem.interfaces.*;
 import com.requiem.particles.GroundExplosionFlame;
 import com.requiem.particles.SmokeCloud;
 import com.requiem.utilities.AssetManager;
@@ -30,16 +27,14 @@ import static org.lwjgl.opengl.GL11.*;
  * Created by Trent on 2/9/2015.
  */
 public class ParticleManager {
-public static Light fireLight;
-    public static List<Particle> particleList;
-
-    private static List<Particle> toBeAddedParticleList;
+    public static List<ParticleEmitter> particleEmitterList;
+    public static List<ParticleEmitter> toBeAddedParticleEmitterList;
 
     private static boolean init;
 
     public static void init() {
-        particleList = new LinkedList<Particle>();
-        toBeAddedParticleList = new LinkedList<Particle>();
+        particleEmitterList = new LinkedList<ParticleEmitter>();
+        toBeAddedParticleEmitterList = new LinkedList<ParticleEmitter>();
 
         loadParticleSpriteSheets();
 
@@ -50,20 +45,16 @@ public static Light fireLight;
         if (!init)
             init();
 
-        if (fireLight != null) {
-            fireLight.setLightDiffuse(new Vector4f((0.2f + FastRandom.random.nextFloat() / 20 - 0.025f) * particleList.size() / 60, (0.08f + FastRandom.random.nextFloat() / 50 - 0.001f) * particleList.size() / 60, 0, 1));
-        }
+        particleEmitterList.addAll(toBeAddedParticleEmitterList);
+        toBeAddedParticleEmitterList.clear();
 
-        particleList.addAll(toBeAddedParticleList);
-        toBeAddedParticleList.clear();
+        Iterator<ParticleEmitter> particleEmitterIterator = particleEmitterList.listIterator();
+        while (particleEmitterIterator.hasNext()) {
+            ParticleEmitter currentParticleEmitter = particleEmitterIterator.next();
+            currentParticleEmitter.update();
 
-        Iterator<Particle> particleIterator = particleList.listIterator();
-        while (particleIterator.hasNext()) {
-            Particle currentParticle = particleIterator.next();
-            currentParticle.update();
-
-            if (currentParticle.isDead()) {
-                particleIterator.remove();
+            if (currentParticleEmitter.isDead()) {
+                particleEmitterIterator.remove();
             }
         }
     }
@@ -73,11 +64,16 @@ public static Light fireLight;
         SmokeCloud.spriteSheet = (Texture) AssetManager.getAsset(SmokeCloud.SPRITE_SHEET_PATH);
     }
 
-    public static void addParticle(Particle particle) {
-        toBeAddedParticleList.add(particle);
+    public static void addParticleEmitter(ParticleEmitter particleEmitter) {
+        particleEmitterList.add(particleEmitter);
     }
 
     public static void renderParticles() {
+        List<Particle> particleList = new LinkedList<Particle>();
+        for (ParticleEmitter particleEmitter : particleEmitterList) {
+            particleList.addAll(particleEmitter.getParticles());
+        }
+
         glEnable(GL_TEXTURE_2D);
         int[] currentBlendFunc = {GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA};
         Texture currentBoundSpriteSheet = null;

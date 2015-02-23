@@ -1,9 +1,7 @@
 package com.requiem.particles;
 
-import com.requiem.Requiem;
 import com.requiem.abstractentities.GameCamera;
 import com.requiem.interfaces.Particle;
-import com.requiem.managers.ParticleManager;
 import com.requiem.utilities.FastRandom;
 import com.requiem.utilities.GameTime;
 import com.requiem.utilities.MathUtils;
@@ -176,20 +174,6 @@ public class GroundExplosionFlame implements Particle {
         int lifeStage = (int) ((GameTime.getCurrentMillis() - spawnTime) * ANIM_LENGTH / lifeSpan);
         texCoords[0] = new Point2f(lifeStage * 1f / ANIM_LENGTH, (float) animHeight / ANIM_HEIGHT);
         texCoords[1] = new Point2f((lifeStage + 1) * 1f / ANIM_LENGTH, (float) (animHeight + 1) / ANIM_HEIGHT);
-
-        /*if (willMakeSmoke && lifeStage >= 2 && FastRandom.random.nextFloat() < 0.002 * GameTime.getDeltaTime()) {
-            Particle currentParticle = new SmokeCloud();
-            currentParticle.init();
-            currentParticle.getPos().x = pos.x;
-            currentParticle.getPos().y = pos.y + 0.5f;
-            currentParticle.getPos().z = pos.z;
-            currentParticle.getVel().x = vel.x;
-            currentParticle.getVel().y = vel.y + 0.0025f;
-            currentParticle.getVel().z = vel.z;
-            ParticleManager.addParticle(currentParticle);
-
-            willMakeSmoke = false;
-        }*/
 
         vel.y += 0.000009f * GameTime.getDeltaTime();
         pos.y += vel.y;

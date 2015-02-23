@@ -23,6 +23,7 @@ import static org.lwjgl.opengl.GL20.glUniform4f;
  */
 public class LightManager {
     public static List<Light> lightList = new LinkedList<Light>();
+    public static final int MAX_LIGHTS = 8;
 
     public static void addLight(Light light) {
         lightList.add(light);
@@ -34,7 +35,7 @@ public class LightManager {
 
         Iterator<Light> lightIterator = lightList.listIterator();
         int lightIndex = 0;
-        while (lightIterator.hasNext()) {
+        while (lightIterator.hasNext() && lightIndex < MAX_LIGHTS) {
             Light curLight = lightIterator.next();
 
             int lightTypeLoc = glGetUniformLocation(shaderProgram, "lights[" + lightIndex + "].lightType");
@@ -69,6 +70,8 @@ public class LightManager {
     }
 
     public static void removeLight(Light light) {
+        System.out.println(lightList.size());
         lightList.remove(light);
+        System.out.println(lightList.size());
     }
 }

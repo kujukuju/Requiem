@@ -98,16 +98,7 @@ public class Requiem {
         GameCamera.init();
         FontManager.init();
 
-        //TODO remove later
-        //Light spotLight = new SpotLight(new Point4f(1, 3, 1, 1), new Vector4f(0, 0, 1, 0), new Vector4f(1, 0, 0, 1));
-        //LightManager.addLight(spotLight);
-        //Light spotLight2 = new SpotLight(new Point4f(5, 3, 1, 1), new Vector4f(0, 0, 1, 0), new Vector4f(0, 0, 1, 1));
-        //LightManager.addLight(spotLight2);
-        Light pointLight = new PointLight(new Point4f(3, 15, 6, 1), new Vector4f(1, 1, 1, 1));
-        LightManager.addLight(pointLight);
-        Light pointLight2 = new PointLight(new Point4f(10, 15, -10, 1), new Vector4f(1, 1, 1, 1));
-        LightManager.addLight(pointLight2);
-        Light dirLight = new DirectionalLight(new Vector4f(-0.57735f, 0.57735f, -0.57735f, 0f), new Vector4f(1, 0.9f, 0.8f, 1));
+        Light dirLight = new DirectionalLight(new Vector4f(-0.57735f, 0.57735f, -0.57735f, 0f), new Vector4f(1 / 2f, 0.9f / 2f, 0.8f / 2f, 1));
         LightManager.addLight(dirLight);
     }
 

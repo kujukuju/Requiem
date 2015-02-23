@@ -2,12 +2,14 @@ package com.requiem.abilities;
 
 import com.requiem.effects.lights.PointLight;
 import com.requiem.interfaces.Particle;
+import com.requiem.interfaces.ParticleEmitter;
 import com.requiem.listeners.GameInput;
 import com.requiem.logic.Physics;
 import com.requiem.managers.LightManager;
 import com.requiem.managers.ParticleManager;
 import com.requiem.managers.PlayerManager;
 import com.requiem.particles.GroundExplosionFlame;
+import com.requiem.particles.emitters.GroundExplosionFlameEmitter;
 import com.requiem.states.PlayableState;
 import com.requiem.utilities.GameTime;
 import com.requiem.utilities.MathUtils;
@@ -17,8 +19,6 @@ import javax.vecmath.Point3f;
 import javax.vecmath.Point4f;
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -26,6 +26,8 @@ import java.util.Random;
  */
 public class GroundExplosion implements Ability {
     private int stage;
+
+    private ParticleEmitter particleEmitter;
 
     private long abilityCreationTime;
     private Random randomSeededGenerator;
@@ -126,6 +128,11 @@ public class GroundExplosion implements Ability {
     }
 
     @Override
+    public ParticleEmitter getParticleEmitter() {
+        return particleEmitter;
+    }
+
+    @Override
     public int getTotalCooldown() {
         return TOTAL_COOLDOWN;
     }
@@ -175,22 +182,19 @@ public class GroundExplosion implements Ability {
                     stage = STAGE_CASTING;
                     if (startCastTime == 0) {
                         startCastTime = GameTime.getCurrentMillis();
+                        particleEmitter = new GroundExplosionFlameEmitter(this, targetPoint);
+                        ParticleManager.addParticleEmitter(particleEmitter);
                     }
                 }
             }
 
             if (stage == STAGE_CASTING) {
-                Point3f castFromPoint = PlayerManager.getCastFromPoint();
-                Vector3f vectorToTarget = new Vector3f(targetPoint.x - castFromPoint.x, targetPoint.y - castFromPoint.y, targetPoint.z - castFromPoint.z);
-                Vector3f angleToTarget = MathUtils.vectorToAngle(vectorToTarget);
-                angleToTarget.x = PlayerManager.PLAYER.getAng().x;
-                PlayerManager.PLAYER.getAng().y = angleToTarget.y;
-                Physics.lockPlayerAngles();
-
-if (ParticleManager.fireLight == null) {
-    ParticleManager.fireLight = new PointLight(new Point4f(targetPoint.x, targetPoint.y + 1.6f, targetPoint.z, 1), new Vector4f(0.2f, 0.08f, 0, 1));
-    LightManager.addLight(ParticleManager.fireLight);
-}
+                //Point3f castFromPoint = PlayerManager.getCastFromPoint();
+                //Vector3f vectorToTarget = new Vector3f(targetPoint.x - castFromPoint.x, targetPoint.y - castFromPoint.y, targetPoint.z - castFromPoint.z);
+                //Vector3f angleToTarget = MathUtils.vectorToAngle(vectorToTarget);
+                //angleToTarget.x = PlayerManager.PLAYER.getAng().x;
+                //PlayerManager.PLAYER.getAng().y = angleToTarget.y;
+                //Physics.lockPlayerAngles();
 
                 int desiredListSize = (int) (GameTime.getCurrentMillis() - startCastTime) / 10;
                 for (; particleCount < desiredListSize; particleCount++) {
@@ -204,7 +208,7 @@ if (ParticleManager.fireLight == null) {
                     currentParticle.getPos().y = targetPoint.y;
                     currentParticle.getPos().z = (float) (targetPoint.z + Math.sin(angle) * radius);
                     currentParticle.getVel().y = 0.01f;
-                    ParticleManager.addParticle(currentParticle);
+                    particleEmitter.addParticle(currentParticle);
                 }
 
                 if (getRemainingCastTime() == 0) {
